@@ -1,0 +1,10 @@
+{
+	"name": "fire-js",
+	"version": "0.1.0",
+	"author": "Sören Meier <soeren@s-me.ch>",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/fire-lib/fire-js.git"
+	},
+	"license": "MIT or Apache-2.0"
+}
