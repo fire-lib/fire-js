@@ -76,8 +76,8 @@ export function match(search, val) {
 	if (search.length === 0)
 		return 0;
 
-	search = search.toLowerCase();
-	val = val.toLowerCase();
+	search = search.normalize('NFKD').toLowerCase();
+	val = val.normalize('NFKD').toLowerCase();
 
 	const i = val.indexOf(search);
 	// search not found in val
