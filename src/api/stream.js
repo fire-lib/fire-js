@@ -2,7 +2,32 @@
 import ApiError from './error.js';
 import Data from './../data/data.js';
 import { timeout } from './../util.js';
+import Listeners from './../util/listeners.js';
 
+/// The Stream is responsible for managing your connection with a server
+/// when you call connect Stream will try to create a WebSocket connection.
+/// 
+/// At this point you can start a Sender or Receiver. The request will wait
+/// until a channel could be established or the server closed it.
+/// 
+/// You can listen for messages or send them until you receive the error event
+/// which will mean the channel was closed. You can then try to create a new
+/// one.
+/// 
+/// When the Stream triggers an error event this might mean the connection is
+/// closed but doesn't have to. You should wait until you receive the close
+/// event to be sure. After that you can call connect again.
+/// 
+/// 
+/// ## Important
+/// Only use functions all properties are private also functions prefix with an
+/// underscore.
+/// 
+// ## Internal
+// We expect that the WebSocket class only triggers a close event if the connect
+// was established. This is the case in some circumstances but not in all.
+// So we just relly on error if the connection was not opened and on close
+// if the connection was opened.
 export default class Stream {
 	/*
 	pub props:
@@ -17,24 +42,28 @@ export default class Stream {
 		this.path = path;
 
 		this.ws = null;
-		this.connecting = false;
+		this.connected = false;
 
-		this.connectedListeners = new Set;
-		this.closeListeners = new Set;
+		// event listeners these names refer to the events we wan't to trigger
+		this.openListeners = new Listeners;
+		this.errorListeners = new Listeners;
+		this.closeListeners = new Listeners;
+
+		// on received a close event the senders and receivers are already
+		// cleaned
 
 		// <Action, Sender>
 		this.senders = new Map;
 		// <Action, Receiver>
 		this.receivers = new Map;
-
-		this.persisentReceivers = new Map;
 	}
 
-	get connected() {
-		return !!this.ws;
+	/// Only returns true if the connection state is Open.
+	isConnect() {
+		return this.connected;
 	}
 
-	addr() {
+	_addr() {
 		if (!this.api.addr)
 			throw new ApiError('Other', 'Server addr not defined');
 		const url = new URL(this.api.addr);
@@ -46,81 +75,84 @@ export default class Stream {
 		return strUrl + this.path;
 	}
 
-	/// throws if the connection fails to open
-	async connect() {
+	/// Starts to connect if there is no connection.
+	///
+	/// ## Throws
+	/// Or if there was an issue with the address.
+	connect() {
 		if (this.ws)
+			throw new ApiError('Other', 'Connection already started');
+
+		const addr = this._addr();
+
+		this.ws = new WebSocket(addr);
+
+		this.ws.addEventListener('open', this._onOpen);
+		this.ws.addEventListener('message', this._onMessage);
+		this.ws.addEventListener('error', this._onError);
+		this.ws.addEventListener('close', this._onClose);
+	}
+
+	_onOpen() {
+		this.connected = true;
+		this.openListeners.trigger();
+	}
+
+	_onMessage(e) {
+		if (typeof e.data !== 'string')
+			return console.log('unrecognized websocket message', e);
+
+		let protMsg;
+		try {
+			protMsg = new ProtMessage(JSON.parse(e.data));
+		} catch (e) {
+			console.log('failed to deserialize', e);
+			return;
+		}
+
+		// not in try since that is a user error which
+		// should propagate
+		this._handleProtMessage(protMsg);
+	}
+
+	_onError(e) {
+		this.errorListeners.trigger(e);
+
+		// As noted in the comment of the class we treat this event as
+		// a close event if the connection was opened.
+		if (!this.connected) {
+			// trigger the close event
+			this._close();
+			return;
+		}
+	}
+
+	_onClose(e) {
+		// As noted in the comment of the class we ignore this event
+		// if we're not connected
+		if (!this.connected)
 			return;
 
-		const addr = this.addr();
-
-		if (this.connecting)
-			throw new ApiError('Other', 'already connecting');
-
-		this.connecting = true;
-
-		return new Promise((resolve, error) => {
-			this.ws = new WebSocket(addr);
-
-			this.ws.addEventListener('close', e => {
-				this.ws = null;
-
-				if (this.connecting) {
-					this.connecting = false;
-
-					error(new ApiError(
-						'ConnectionClosed',
-						'WebSocket connection closed'
-					));
-					return;
-				}
-
-				this.privClose();
-			});
-
-			this.ws.addEventListener('message', wsMsg => {
-				if (typeof wsMsg.data !== 'string')
-					return console.log('unrecognized websocket message', wsMsg);
-
-				let protMsg;
-				try {
-					protMsg = new ProtMessage(JSON.parse(wsMsg.data));
-				} catch (e) {
-					console.log('failed to deserialize', wsMsg);
-					return;
-				}
-
-				// not in try since that is a user error which
-				// should propagate
-				this.handleProtMessage(protMsg);
-			});
-
-			const established = () => {
-				this.ws.removeEventListener('open', established);
-				this.connecting = false;
-				this.connectedListeners.forEach(tryFn(fn => fn()));
-				resolve();
-			};
-
-			this.ws.addEventListener('open', established);
-		});
+		this._close();
 	}
 
-	onConnected(fn) {
-		this.connectedListeners.add(fn);
+	_close() {
+		// reset the entire state
+		this.connected = false;
+		this.ws.removeEventListener('open', this._onClose);
+		this.ws.removeEventListener('message', this._onMessage);
+		this.ws.removeEventListener('error', this._onError);
+		this.ws.removeEventListener('error', this._onClose);
+		this.ws = null;
 
-		return () => {
-			this.connectedListeners.delete(fn);
-		};
+		// we need to clear the maps since we wan't to be able to accept
+		// new Senders while in the close trigger.
+		this.senders = new Map;
+		this.receivers = new Map;
+		this.closeListeners.trigger();
 	}
 
-	onClose(fn) {
-		this.closeListeners.add(fn);
-
-		return () => {
-			this.closeListeners.delete(fn);
-		};
-	}
-
+	/// Closes a connection if there is one
 	close() {
 		if (!this.ws)
 			return;
@@ -128,22 +160,50 @@ export default class Stream {
 		this.ws.close();
 	}
 
+	/// this promise waits until a connection is established
+	/// so there might be close events in between
+	async _waitReady() {
+		return await new Promise((resolve, error) => {
+			if (this.connected)
+				return;
+
+			let rmFn = () => {};
+			rmFn = this.openListeners.add(() => {
+				rmFn();
+				resolve();
+			});
+		});
+	}
+
 	/// returns a Sender
-	/// throws if could not transmit the request
-	/// or if a sender is already registered
+	/// 
+	/// ## Throws
+	/// throws if could not transmit the request or the action already exists.
 	async newSender(action, request = null) {
 		if (this.senders.has(action))
 			throw new ApiError('Other', 'sender already exists');
 
-		const sender = new Sender(action, this);
-		// should send a Message
-		this.privSend({
-			kind: 'SenderRequest',
-			action,
-			data: request
-		});
+		// we need to insert the sender since else we could send dublicated
+		// action requests
+		// we just need to make sure that we don't throw.
 
+		const sender = new Sender(action, this);
 		this.senders.set(action, sender);
+
+		try {
+			// wait until ready
+			await this._waitReady();
+
+			// send message
+			this._send({
+				kind: 'SenderRequest',
+				action,
+				data: request
+			})
+		} catch (e) {
+			this.senders.delete(action);
+			throw e;
+		}
 
 		await sender.privReady();
 
@@ -171,27 +231,8 @@ export default class Stream {
 		return receiver;
 	}
 
-	newPersistentReceiver(action, request = null) {
-		let recv = this.persisentReceivers.get(action);
-		if (recv)
-			return recv;
-		recv = new PersistentReceiver(action, this, request);
-		this.persisentReceivers.set(action, recv);
-		return recv;
-	}
-
 	// priv
-	privClose() {
-		// and all senders and receivers
-		this.senders.forEach(sender => sender.privClose());
-		this.senders = new Map;
-
-		// notify all that are interested
-		this.closeListeners.forEach(tryFn(fn => fn()));
-	}
-
-	// priv
-	privSend(protMsg) {
+	_send(protMsg) {
 		if (this.ws.readyState !== 1)
 			throw new ApiError('Closed', 'connection not ready');
 
@@ -199,7 +240,7 @@ export default class Stream {
 	}
 
 	// priv
-	handleProtMessage(msg) {
+	_handleProtMessage(msg) {
 		// define it here since switch does not have variable scopes
 		// how anoying!!!
 		let receiver, sender;
