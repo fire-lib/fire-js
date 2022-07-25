@@ -87,69 +87,71 @@ export default class Stream {
 
 		this.ws = new WebSocket(addr);
 
-		this.ws.addEventListener('open', this._onOpen);
-		this.ws.addEventListener('message', this._onMessage);
-		this.ws.addEventListener('error', this._onError);
-		this.ws.addEventListener('close', this._onClose);
+		const onOpen = () => {
+			this.connected = true;
+			this.openListeners.trigger();
+		};
+		const onMessage = e => {
+			if (typeof e.data !== 'string')
+				return console.log('unrecognized websocket message', e);
+
+			let protMsg;
+			try {
+				protMsg = new ProtMessage(JSON.parse(e.data));
+			} catch (e) {
+				console.log('failed to deserialize', e);
+				return;
+			}
+
+			// not in try since that is a user error which
+			// should propagate
+			this._handleProtMessage(protMsg);
+		};
+		const onError = e => {
+			this.errorListeners.trigger(e);
+
+			// As noted in the comment of the class we treat this event as
+			// a close event if the connection was opened.
+			if (!this.connected) {
+				// trigger the close event
+				this._close();
+				return;
+			}
+		};
+		let onClose = () => {};
+		onClose = e => {
+			// As noted in the comment of the class we ignore this event
+			// if we're not connected
+			if (!this.connected)
+				return;
+
+			// reset the entire state
+			this.connected = false;
+			this.ws.removeEventListener('open', onClose);
+			this.ws.removeEventListener('message', onMessage);
+			this.ws.removeEventListener('error', onError);
+			this.ws.removeEventListener('error', onClose);
+			this.ws = null;
+
+			// we need to clear the maps since we wan't to be able to accept
+			// new Senders while in the close trigger.
+			this.senders = new Map;
+			this.receivers = new Map;
+			this.closeListeners.trigger();
+		};
+
+		this.ws.addEventListener('open', onOpen);
+		this.ws.addEventListener('message', onMessage);
+		this.ws.addEventListener('error', onError);
+		this.ws.addEventListener('close', onClose);
 	}
 
-	_onOpen() {
-		this.connected = true;
-		this.openListeners.trigger();
+	onError(fn) {
+		return this.errorListeners.add(fn);
 	}
 
-	_onMessage(e) {
-		if (typeof e.data !== 'string')
-			return console.log('unrecognized websocket message', e);
-
-		let protMsg;
-		try {
-			protMsg = new ProtMessage(JSON.parse(e.data));
-		} catch (e) {
-			console.log('failed to deserialize', e);
-			return;
-		}
-
-		// not in try since that is a user error which
-		// should propagate
-		this._handleProtMessage(protMsg);
-	}
-
-	_onError(e) {
-		this.errorListeners.trigger(e);
-
-		// As noted in the comment of the class we treat this event as
-		// a close event if the connection was opened.
-		if (!this.connected) {
-			// trigger the close event
-			this._close();
-			return;
-		}
-	}
-
-	_onClose(e) {
-		// As noted in the comment of the class we ignore this event
-		// if we're not connected
-		if (!this.connected)
-			return;
-
-		this._close();
-	}
-
-	_close() {
-		// reset the entire state
-		this.connected = false;
-		this.ws.removeEventListener('open', this._onClose);
-		this.ws.removeEventListener('message', this._onMessage);
-		this.ws.removeEventListener('error', this._onError);
-		this.ws.removeEventListener('error', this._onClose);
-		this.ws = null;
-
-		// we need to clear the maps since we wan't to be able to accept
-		// new Senders while in the close trigger.
-		this.senders = new Map;
-		this.receivers = new Map;
-		this.closeListeners.trigger();
+	onClose(fn) {
+		return this.closeListeners.add(fn);
 	}
 
 	/// Closes a connection if there is one
@@ -175,7 +177,24 @@ export default class Stream {
 		});
 	}
 
+	/// Creates a new Sender
+	/// 
+	/// ## Throws
+	/// If the action already exists.
+	newSender(action) {
+		if (this.senders.has(action))
+			throw new ApiError('Other', 'sender already exists');
+
+		const sender = new Sender(action, this);
+		this.senders.set(action, sender);
+
+		return sender;
+	}
+
 	/// returns a Sender
+	/// 
+	/// When the promise get's resolved this means the sender is ready to send
+	/// data.
 	/// 
 	/// ## Throws
 	/// throws if could not transmit the request or the action already exists.
@@ -183,7 +202,7 @@ export default class Stream {
 		if (this.senders.has(action))
 			throw new ApiError('Other', 'sender already exists');
 
-		// we need to insert the sender since else we could send dublicated
+		// we need to insert the sender since else we could send duplicated
 		// action requests
 		// we just need to make sure that we don't throw.
 
@@ -199,13 +218,13 @@ export default class Stream {
 				kind: 'SenderRequest',
 				action,
 				data: request
-			})
+			});
 		} catch (e) {
 			this.senders.delete(action);
 			throw e;
 		}
 
-		await sender.privReady();
+		await sender._waitReady();
 
 		return sender;
 	}
@@ -247,21 +266,12 @@ export default class Stream {
 
 		switch (msg.kind) {
 			case 'SenderRequest':
-				sender = this.senders.get(msg.action);
-				if (!sender)
-					return console.log('sender not found', msg.action);
-
-				// this a confirmation that the request was successfully received
-				sender.privSetReady();
-				return;
-
 			case 'SenderClose':
 				sender = this.senders.get(msg.action);
 				if (!sender)
 					return console.log('sender not found', msg.action);
-				this.senders.delete(msg.action);
 
-				sender.privClose(msg.data);
+				sender._onMsg(msg);
 				return;
 
 			case 'ReceiverRequest':
@@ -314,42 +324,125 @@ export class Sender {
 		this.action = action;
 		this.stream = stream;
 
-		this.closeListeners = new Set;
-		this.closed = false;
+		this.opened = false;
+		this.openProm = null;// {resolve, error}
 
-		this.readyProm = null;
+		this.errorListeners = new Listeners;
 	}
 
-	// throws if could not send the message
+	isReady() {
+		return !this.openProm && this.opened;
+	}
+
+	/// Try to open a sender
+	/// 
+	/// ## Throws
+	/// If the sender is already open or if requesting a sender failed
+	async open(req) {
+		if (this.openProm || this.opened)
+			throw new ApiError('Other', 'Sender already opened');
+
+		const prom = new Promise((resolve, error) => {
+			this.openProm = { resolve, error };
+		});
+
+		try {
+			await this.stream._waitReady();
+
+			this.stream._send({
+				kind: 'SenderRequest',
+				action: this.action,
+				data: req
+			});
+
+			await prom;
+		} catch (e) {
+			this.openProm = null;
+			throw e;
+		}
+
+		this.opened = true;
+		this.openProm = null;
+	}
+
+	// we receive a message from the stream
+	_onMsg(msg) {
+		switch (msg.kind) {
+			// the request was acknowledged
+			case 'SenderRequest':
+				if (!this.openProm) {
+					console.log('could not open Prom');
+					break;
+				}
+
+				// send open finished
+				this.openProm.resolve();
+
+				break;
+			// the request was closed
+			case 'SenderClose':
+
+				let error = new ApiError('Other', 'Sender closed unexpected');
+
+				// let's try to convert the msg into an ApiError
+				if (msg.data) {
+					try {
+						error = ApiError.fromJson(msg.data);
+					} catch (e) {
+						console.log('close message not an Error', e);
+					}
+				}
+
+				this._closeWithError(error);
+				break;
+		}
+	}
+
+	_closeWithError(err) {
+		// there was an error while trying to register
+		if (this.openProm) {
+			this.openProm.error(error);
+			break;
+		}
+
+		this.errorListeners.trigger(error);
+		this.opened = false;
+	}
+
+	/// ## Throws
+	// if could not send the message
 	// or if the channel is already closed
 	send(msg) {
-		if (this.closed)
-			throw new ApiError('SenderClosed', 'sender already closed');
+		if (!this.isReady())
+			throw new ApiError('SenderClosed', 'Sender already closed');
 
-		this.stream.privSend({
+		this.stream._send({
 			kind: 'SenderMessage',
 			action: this.action,
 			data: msg
 		});
 	}
 
-	//fn (error = null)
-	onClose(fn) {
-		this.closeListeners.add(fn);
-
-		return () => {
-			this.closeListeners.delete(fn);
-		};
+	/// When you receive this event you know the channel closed.
+	/// You can call open again to try to reconnect.
+	/// 
+	/// Returns a fn to unsubscribe
+	onError(fn) {
+		return this.errorListeners.add(fn);
 	}
 
-	/// does not notify fns registered with onClose
+	/// Does nothing if the Sender is not ready
+	/// 
+	/// This might trigger the error event if sending the senderClosed failed
+	/// and the connection get's closed right after that.
 	close() {
-		if (this.closed)
+		if (!this.isReady())
 			return;
-		this.closed = true;
+
+		this.opened = false;
 
 		try {
-			this.stream.privSend({
+			this.stream._send({
 				kind: 'SenderClose',
 				action: this.action,
 				data: null
