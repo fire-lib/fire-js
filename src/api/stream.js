@@ -597,6 +597,17 @@ export class Receiver {
 	/// ## Throws
 	/// If the open call is not finished.
 	close() {
+		this.closeTemporary();
+
+		this.stream.receivers.delete(this.action);
+		this.state = STATE_CLOSED_FOREVER;
+		this.rmCloseListener();
+		this.rmCloseListener = null;
+	}
+
+	/// Closes the channel without unregistering on the Stream.
+	/// This allows you to call open again later.
+	closeTemporary() {
 		if (this.state === STATE_CLOSED_FOREVER)
 			return;
 
@@ -620,9 +631,101 @@ export class Receiver {
 			this.state === STATE_READY_TO_OPEN;
 		}
 
-		this.stream.receivers.delete(this.action);
-		this.state = STATE_CLOSED_FOREVER;
-		this.rmCloseListener();
-		this.rmCloseListener = null;
+		this.state = STATE_READY_TO_OPEN;
+	}
+}
+
+const STATE_MAN_READY_TO_OPEN = 0;
+const STATE_MAN_OPENING = 1;
+const STATE_MAN_OPEN = 2;
+
+/// A receiver manager can manage a receiver and allows to start a stream or
+/// stop one as required. It works similarly to a normal receiver but you don't
+/// call open at the beginning but only when the open event get's called.
+export class ReceiverManager {
+	// open should call open on the receiver. It is allowed to throw. When an
+	// exception occurs the manager will call open again with the exception.
+	//
+	// open: async (receiver, hasError: bool, error = null)
+	constructor(receiver, open) {
+		this.receiver = receiver;
+		this.openFn = open;
+
+		this.state = STATE_MAN_READY_TO_OPEN;
+
+		this.listeners = 0;
+
+		this.receiver.onError(e => {
+			this._onError(e);
+		});
+	}
+
+	onMessage(fn) {
+		this.listeners++;
+		const rmFn = this.receiver.onMessage(fn);
+
+		if (this.state === STATE_MAN_READY_TO_OPEN)
+			this._open();
+
+		return () => {
+			this.listeners--;
+			rmFn();
+
+			if (this.listeners === 0)
+				this._onClose();
+		};
+	}
+
+	async _open() {
+		this.state = STATE_MAN_OPENING;
+
+		let hasError = false;
+		let error = null;
+
+		// this loops is only used until we are connected or nobody is interested
+		// in an open channel
+		while (true) {
+			if (this.listeners === 0) {
+				// all listeners are gone
+				this.state = STATE_MAN_READY_TO_OPEN;
+				break;
+			}
+
+			try {
+				await this.openFn(this.receiver, hasError, error);
+
+				// the channel is open now
+				this.state = STATE_MAN_OPEN;
+				break
+
+			} catch (e) {
+				// opening failed
+				hasError = true;
+				error = e;
+			}
+		}
+	}
+	
+	_onError(e) {
+		if (this.state !== STATE_MAN_OPEN) {
+			// probably still opening so we don't need to close anything
+			return;
+		}
+
+		// we had an error and the state is open
+		// let's call open
+		this._open();
+	}
+
+	_onClose() {
+		if (this.state !== STATE_MAN_OPEN) {
+			// probably still opening so we don't need to close anything
+			return;
+		}
+
+		// the state is open
+		// close without removing
+		this.receiver.closeTemporary();
+		this.state = STATE_MAN_READY_TO_OPEN;
 	}
 }
