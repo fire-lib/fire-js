@@ -194,7 +194,7 @@ export default class Stream {
 	/// 
 	/// ## Throws
 	/// If the action already exists.
-	newReceiver(action, request = null) {
+	newReceiver(action) {
 		if (this.receivers.has(action))
 			throw new ApiError('Other', 'receiver already exists');
 
@@ -303,7 +303,7 @@ export class Sender {
 	/// 
 	/// ## Throws
 	/// If the sender is already open or if requesting a sender failed
-	async open(req) {
+	async open(req = null) {
 		if (this.state === STATE_CLOSED_FOREVER)
 			throw new ApiError('Other', 'Sender closed forever');
 
@@ -485,7 +485,7 @@ export class Receiver {
 	/// 
 	/// ## Throws
 	/// If the sender is already open or if requesting a sender failed
-	async open(req) {
+	async open(req = null) {
 		if (this.state === STATE_CLOSED_FOREVER)
 			throw new ApiError('Other', 'Receiver closed forever');
 
