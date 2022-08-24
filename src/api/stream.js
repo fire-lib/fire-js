@@ -163,6 +163,8 @@ export default class Stream {
 
 	/// this promise waits until a connection is established
 	/// so there might be close events in between
+	/// 
+	/// Does not throw an exception
 	async _waitReady() {
 		return await new Promise((resolve, error) => {
 			if (this.connected)
@@ -275,7 +277,7 @@ export class Sender {
 		/// 2: Wating on connection
 		/// 3: Opening
 		/// 4: Opened
-		this.state = 1;
+		this.state = STATE_READY_TO_OPEN;
 
 		this.openProm = null;// {resolve, error}
 
@@ -289,6 +291,12 @@ export class Sender {
 		});
 	}
 
+	/// Returns true if the sender is ready to receive an open call
+	isReadyToOpen() {
+		return this.state === STATE_READY_TO_OPEN;
+	}
+
+	/// Returns true if the sender is ready to send some data
 	isReady() {
 		return this.state === STATE_OPENED;
 	}
@@ -314,11 +322,11 @@ export class Sender {
 			this.openProm = { resolve, error };
 		});
 
-		try {
-			this.state = STATE_WAITING_ON_CONNECTION;
-			await this.stream._waitReady();
-			this.state = STATE_OPENING;
+		this.state = STATE_WAITING_ON_CONNECTION;
+		await this.stream._waitReady();
+		this.state = STATE_OPENING;
 
+		try {
 			this.stream._send({
 				kind: 'SenderRequest',
 				action: this.action,
@@ -327,6 +335,7 @@ export class Sender {
 
 			await prom;
 		} catch (e) {
+			this.state = STATE_READY_TO_OPEN;
 			this.openProm = null;
 			throw e;
 		}
@@ -368,15 +377,15 @@ export class Sender {
 		}
 	}
 
-	_closeWithError(err) {
+	_closeWithError(err = null) {
 		// there was an error while trying to register
 		if (this.state === STATE_OPENING) {
 			this.openProm.error(err);
 			return;
 		}
 
-		this.errorListeners.trigger(err);
 		this.state = STATE_READY_TO_OPEN;
+		this.errorListeners.trigger(err);
 	}
 
 	/// ## Throws
@@ -454,7 +463,7 @@ export class Receiver {
 		/// 2: Wating on connection
 		/// 3: Opening
 		/// 4: Opened
-		this.state = 1;
+		this.state = STATE_READY_TO_OPEN;
 
 		this.openProm = null;// {resolve, error}
 
@@ -471,6 +480,12 @@ export class Receiver {
 		});
 	}
 
+	/// Returns true if the receiver is ready to receive an open call
+	isReadyToOpen() {
+		return this.state === STATE_READY_TO_OPEN;
+	}
+
+	/// Returns true if the receiver is ready to receive some data
 	isReady() {
 		return this.state === STATE_OPENED;
 	}
@@ -496,11 +511,11 @@ export class Receiver {
 			this.openProm = { resolve, error };
 		});
 
-		try {
-			this.state = STATE_WAITING_ON_CONNECTION;
-			await this.stream._waitReady();
-			this.state = STATE_OPENING;
+		this.state = STATE_WAITING_ON_CONNECTION;
+		await this.stream._waitReady();
+		this.state = STATE_OPENING;
 
+		try {
 			this.stream._send({
 				kind: 'ReceiverRequest',
 				action: this.action,
@@ -509,6 +524,7 @@ export class Receiver {
 
 			await prom;
 		} catch (e) {
+			this.state = STATE_READY_TO_OPEN;
 			this.openProm = null;
 			throw e;
 		}
@@ -556,15 +572,15 @@ export class Receiver {
 		}
 	}
 
-	_closeWithError(err) {
+	_closeWithError(err = null) {
 		// there was an error while trying to register
 		if (this.state === STATE_OPENING) {
 			this.openProm.error(err);
 			return;
 		}
 
-		this.errorListeners.trigger(err);
 		this.state = STATE_READY_TO_OPEN;
+		this.errorListeners.trigger(err);
 	}
 
 	// fn (msg)
