@@ -55,15 +55,15 @@ export class UniqueIdType extends ParseType {
 }
 
 export class Option extends ParseType {
-	constructor(inner) {
+	constructor(innerType) {
 		super();
-		this.inner = inner;
+		this.innerType = innerType;
 	}
 
 	parse(val) {
 		if (typeof val === 'undefined' || val === null)
 			return null;
-		return parseType(this.inner, val);
+		return parseType(this.innerType, val);
 	}
 
 	default() {
