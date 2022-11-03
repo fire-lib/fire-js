@@ -20,4 +20,8 @@ export default class ApiError {
 	static newSessionError() {
 		return new ApiError('SessionNotFound', 'no session');
 	}
+
+	toString() {
+		return `${ this.kind }: ${ this.msg }`;
+	}
 }
