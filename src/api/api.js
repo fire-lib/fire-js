@@ -9,7 +9,7 @@ export default class Api {
 		return encodeURIComponent(JSON.stringify(data));
 	}
 
-	async request(method, path, data = null, headers = {}) {
+	async request(method, path, data = null, headers = {}, opts = {}) {
 		let err;
 
 		if (!this.addr)
@@ -18,7 +18,8 @@ export default class Api {
 		try {
 			let fetchParams = {
 				headers,
-				method
+				method,
+				...opts
 			};
 			fetchParams.headers['content-type'] = 'application/json';
 
