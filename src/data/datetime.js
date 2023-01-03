@@ -3,13 +3,18 @@ import { fromAny } from './localization.js';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
+function isDateTimeObject(val) {
+	return typeof (val ? val.__isDateTimeObject__ : null) === 'function';
+}
+
 export default class DateTime {
 	static __parsetype__() {}
+	__isDateTimeObject__() {}
 	static parse(val) {
 		if (
 			typeof val !== 'string' &&
 			typeof val !== 'number' &&
-			!(val instanceof DateTime)
+			!isDateTimeObject(val)
 		)
 			throw new Error('expected a string or a number');
 
@@ -22,7 +27,7 @@ export default class DateTime {
 			return;
 		}
 
-		if (date instanceof DateTime)
+		if (isDateTimeObject(date))
 			date = date.raw;
 
 		if (date instanceof Date) {
