@@ -67,3 +67,14 @@ export function offset(el) {
 	const { left, top } = el.getBoundingClientRect();
 	return { x: left, y: top };
 }
+
+// left right is ignored
+export function inViewY(el) {
+	const wHeight = window.innerHeight;
+	const { top, bottom } = el.getBoundingClientRect();
+
+	const topInView = top >= 0 && top <= wHeight;
+	const bottomInView = bottom >= 0 && bottom <= wHeight;
+
+	return topInView || bottomInView;
+}
