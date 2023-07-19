@@ -3,6 +3,11 @@
 	"version": "0.2.6",
 	"author": "Sören Meier <soeren@s-me.ch>",
 	"type": "module",
+	"scripts": {
+		"docs": "jsdoc -c jsdoc.conf.json",
+		"check": "tsc",
+		"lint": "eslint ./src"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/fire-lib/fire-js.git"
@@ -10,5 +15,10 @@
 	"license": "MIT or Apache-2.0",
 	"exports": {
 		"./*": "./src/*"
+	},
+	"devDependencies": {
+		"eslint": "^8.45.0",
+		"jsdoc": "^4.0.2",
+		"typescript": "^5.1.6"
 	}
 }

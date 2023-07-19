@@ -1,8 +1,7 @@
-
 import ApiError from './error.js';
 import Data from './../data/data.js';
-import { timeout } from './../util.js';
 import Listeners from './../util/listeners.js';
+
 
 /// The Stream is responsible for managing your connection with a server
 /// when you call connect Stream will try to create a WebSocket connection.
@@ -130,7 +129,7 @@ export default class Stream {
 				return;
 			}
 		};
-		onClose = e => {
+		onClose = () => {
 			// As noted in the comment of the class we ignore this event
 			// if we're not connected
 			if (!this.connected)
@@ -166,7 +165,7 @@ export default class Stream {
 	/// 
 	/// Does not throw an exception
 	async _waitReady() {
-		return await new Promise((resolve, error) => {
+		return await new Promise((resolve, _error) => {
 			if (this.connected)
 				return resolve();
 
@@ -359,7 +358,7 @@ export class Sender {
 
 				break;
 			// the request was closed
-			case 'SenderClose':
+			case 'SenderClose': {
 
 				let error = new ApiError('Other', 'Sender closed unexpected');
 
@@ -374,6 +373,7 @@ export class Sender {
 
 				this._closeWithError(error);
 				break;
+			}
 		}
 	}
 
@@ -548,13 +548,14 @@ export class Receiver {
 
 				break;
 			// we receive a new message
-			case 'ReceiverMessage':
+			case 'ReceiverMessage': {
 
 				const parsed = this.parseFn(msg.data);
 				this.messageListeners.trigger(parsed);
 				break;
+			}
 			// the request was closed
-			case 'ReceiverClose':
+			case 'ReceiverClose': {
 
 				let error = new ApiError('Other', 'Receiver closed unexpected');
 
@@ -569,6 +570,7 @@ export class Receiver {
 
 				this._closeWithError(error);
 				break;
+			}
 		}
 	}
 
@@ -722,7 +724,7 @@ export class ReceiverManager {
 		}
 	}
 	
-	_onError(e) {
+	_onError(_e) {
 		if (this.state !== STATE_MAN_OPEN) {
 			// probably still opening so we don't need to close anything
 			return;

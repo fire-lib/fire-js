@@ -4,12 +4,12 @@ import DateTime from './datetime.js';
 
 export default class ParseType {
 	static __parsetype__() {}
-	static parse(data) {
+	static parse(_data) {
 		throw new Error('static parse not implemented');
 	}
 
 	__parsetype__() {}
-	parse(data) {
+	parse(_data) {
 		throw new Error('parse not implemented');
 	}
 }
