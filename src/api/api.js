@@ -13,7 +13,7 @@ export default class Api {
 		let err;
 
 		if (!this.addr)
-			throw new ApiError('Other', 'Server addr not defined');
+			throw ApiError.newOther('Server addr not defined');
 
 		try {
 			let fetchParams = {
@@ -37,11 +37,11 @@ export default class Api {
 				err = ApiError.fromJson(errObj);
 			}
 		} catch (e) {
-			console.log('request other', e);
-			err = new ApiError('Other', e.message);
+			console.error('request error raw', e);
+			err = ApiError.newOther(e.message);
 		}
 
-		console.log('request error', err);
+		console.error('request error', err);
 		throw err;
 	}
 
@@ -56,7 +56,7 @@ export default class Api {
 			progress = () => {};
 
 		if (!this.addr)
-			throw new ApiError('Other', 'Server addr not defined');
+			throw ApiError.newOther('Server addr not defined');
 
 		return new Promise((res, err) => {
 
@@ -65,31 +65,29 @@ export default class Api {
 
 			req.responseType = 'json';
 
-			req.addEventListener('load', e => {
+			req.addEventListener('load', () => {
 				progress(100);
 
 				// should probably be a json object now
-				console.log('response', req.response, req.status);
 				if (req.status === 200) {
 					res(req.response);
 				} else {
 					try {
 						err(ApiError.fromJson(req.response));
 					} catch (e) {
-						err(new ApiError('Other', e.message));
+						err(ApiError.newOther(e.message));
 					}
 				}
 			});
 
-			req.addEventListener('error', e => {
-				console.log('file request error', req.error);
+			req.addEventListener('error', () => {
+				console.error('file request error', req.error);
 				err(req.error);
 			});
 
 			// to manually 'estimate the progress';
 			let prevProgress = 0;
 			req.addEventListener('progress', e => {
-				console.log('req progress', e);
 				if (e.lengthComputable) {
 					progress(Math.min((e.loaded / e.total) * 100, 100));
 				} else {
@@ -119,7 +117,7 @@ export default class Api {
 		timeout = 0
 	) {
 		if (!this.addr)
-			throw new ApiError('Other', 'Server addr not defined');
+			throw ApiError.newOther('Server addr not defined');
 
 		return new Promise((res, err) => {
 
@@ -128,28 +126,26 @@ export default class Api {
 
 			req.responseType = 'json';
 
-			req.addEventListener('load', e => {
-
+			req.addEventListener('load', () => {
 				// should probably be a json object now
-				console.log('response', req.response, req.status);
 				if (req.status === 200) {
 					res(req.response);
 				} else {
 					try {
 						err(ApiError.fromJson(req.response));
 					} catch (e) {
-						err(new ApiError('Other', e.message));
+						err(ApiError.newOther(e.message));
 					}
 				}
 			});
 
-			req.addEventListener('timeout', e => {
-				console.log('requested TimedOut', req.error);
+			req.addEventListener('timeout', () => {
+				console.error('requested TimedOut', req.error);
 				err(req.error);
 			});
 
-			req.addEventListener('error', e => {
-				console.log('requestTimeout error', req.error);
+			req.addEventListener('error', () => {
+				console.error('requestTimeout error', req.error);
 				err(req.error);
 			});
 
