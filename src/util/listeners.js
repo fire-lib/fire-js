@@ -30,24 +30,24 @@ export default class Listeners {
 	/**
 	 * Calls each listener in the set with the given value.
 	 *
-	 * @param {*} [val=null] - The value to be passed to each listener.
+	 * @param {...*} args - The arguments to be passed to each listener.
 	 * @throws Will throw an error if a listener throws an error.
 	 */
-	trigger(val = null) {
-		this.inner.forEach(fn => fn(val));
+	trigger(...args) {
+		this.inner.forEach(fn => fn(...args));
 	}
 
 	/**
 	 * Clears all listeners from the set, then calls each previously stored
 	 * listener with the given value.
 	 *
-	 * @param {*} [val=null] - The value to be passed to each listener.
+	 * @param {...*} args - The arguments to be passed to each listener.
 	 * @throws Will throw an error if a listener throws an error.
 	 */
-	clearAndTrigger(val = null) {
+	clearAndTrigger(...args) {
 		const s = this.inner;
 		this.clear();
-		s.forEach(fn => fn(val));
+		s.forEach(fn => fn(...args));
 	}
 
 	/**
