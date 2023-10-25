@@ -78,3 +78,10 @@ export function inViewY(el) {
 
 	return topInView || bottomInView;
 }
+
+// name --my-var
+export function cssVar(name, el = null) {
+	if (!el)
+		el = document.body;
+	return getComputedStyle(el).getPropertyValue(name);
+}
