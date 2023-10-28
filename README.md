@@ -2,6 +2,9 @@
 ## Fire Js
 This contains various helpers and types.
 
+## Unstable
+the graphql module is unstable.
+
 ## Usage
 ```json
 {
