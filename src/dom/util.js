@@ -86,7 +86,7 @@ export function cssVar(name, el = null) {
 	return getComputedStyle(el).getPropertyValue(name);
 }
 
-export function fontSize(name, el = null) {
+export function fontSize(el = null) {
 	if (!el)
 		el = document.documentElement;
 	return parseFloat(getComputedStyle(el).fontSize);
