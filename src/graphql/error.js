@@ -17,9 +17,7 @@ export default class GraphQlError {
 
 		if (typeof errors === 'string')
 			errors = [{ message: errors }];
-		if (Array.isArray(errors))
-			errors = errors;
-		else
+		else if (!Array.isArray(errors))
 			errors = [errors];
 
 		this.errors = errors;

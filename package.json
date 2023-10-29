@@ -1,6 +1,6 @@
 {
 	"name": "fire-lib-js",
-	"version": "0.2.13",
+	"version": "0.2.14",
 	"author": "Sören Meier <info@soerenmeier.ch>",
 	"type": "module",
 	"scripts": {

@@ -82,6 +82,12 @@ export function inViewY(el) {
 // name --my-var
 export function cssVar(name, el = null) {
 	if (!el)
-		el = document.body;
+		el = document.documentElement;
 	return getComputedStyle(el).getPropertyValue(name);
+}
+
+export function fontSize(name, el = null) {
+	if (!el)
+		el = document.documentElement;
+	return parseFloat(getComputedStyle(el).fontSize);
 }
