@@ -40,7 +40,7 @@ export default class Date {
 	 */
 	constructor(date = null) {
 		if (typeof date === 'undefined' || date === null) {
-			this.raw = new window.Date;
+			this.raw = new globalThis.Date;
 			this.raw.setHours(0, 0, 0, 0);
 			return;
 		}
@@ -48,12 +48,12 @@ export default class Date {
 		if (isDateObject(date))
 			date = date.raw;
 
-		if (date instanceof window.Date) {
+		if (date instanceof globalThis.Date) {
 			this.raw = date;
 			return;
 		}
 
-		this.raw = new window.Date(date);
+		this.raw = new globalThis.Date(date);
 
 		if (isNaN(this.raw))
 			throw new Error('invalid Date');
@@ -102,7 +102,7 @@ export default class Date {
 	get week() {
 		const nearestThursday = this.clone();
 		nearestThursday.raw.setDate(this.date + 4 - this.dayMoToSu);
-		const firstDay = new Date(new window.Date(this.year, 0, 1));
+		const firstDay = new Date(new globalThis.Date(this.year, 0, 1));
 		const days = (nearestThursday.time - firstDay.time) / DAY_IN_MS;
 		return Math.ceil((days + 1) / 7);
 	}
@@ -139,7 +139,7 @@ export default class Date {
 	 * date
 	 */
 	clone() {
-		return new Date(new window.Date(this.year, this.month, this.date));
+		return new Date(new globalThis.Date(this.year, this.month, this.date));
 	}
 
 	/**
