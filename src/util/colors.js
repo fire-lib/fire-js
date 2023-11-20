@@ -2,6 +2,7 @@ import { range } from '../util.js';
 
 /// returns expects a hex value with 6 values `rgba(0,0,0,a)`
 export function toRgba(val, alpha = 1) {
+	val = val.trim();
 	if (!val.startsWith('#') || val.length !== 7)
 		throw new Error('expected a hex value with 6 characters');
 
