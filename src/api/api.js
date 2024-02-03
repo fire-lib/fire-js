@@ -12,14 +12,13 @@ export default class Api {
 	async request(method, path, data = null, headers = {}, opts = {}) {
 		let err;
 
-		if (!this.addr)
-			throw ApiError.newOther('Server addr not defined');
+		if (!this.addr) throw ApiError.newOther('Server addr not defined');
 
 		try {
 			let fetchParams = {
 				headers,
 				method,
-				...opts
+				...opts,
 			};
 			fetchParams.headers['content-type'] = 'application/json';
 
@@ -45,23 +44,14 @@ export default class Api {
 		throw err;
 	}
 
-	async requestWithFile(
-		method,
-		path,
-		file,
-		progress = null,
-		headers = {}
-	) {
-		if (!progress)
-			progress = () => {};
+	async requestWithFile(method, path, file, progress = null, headers = {}) {
+		if (!progress) progress = () => {};
 
-		if (!this.addr)
-			throw ApiError.newOther('Server addr not defined');
+		if (!this.addr) throw ApiError.newOther('Server addr not defined');
 
 		return new Promise((res, err) => {
-
 			// use XMLHttpRequest since with fetch we cannot track the upload
-			const req = new XMLHttpRequest;
+			const req = new XMLHttpRequest();
 
 			req.responseType = 'json';
 
@@ -109,20 +99,12 @@ export default class Api {
 		});
 	}
 
-	async requestTimeout(
-		method,
-		path,
-		data = null,
-		headers = {},
-		timeout = 0
-	) {
-		if (!this.addr)
-			throw ApiError.newOther('Server addr not defined');
+	async requestTimeout(method, path, data = null, headers = {}, timeout = 0) {
+		if (!this.addr) throw ApiError.newOther('Server addr not defined');
 
 		return new Promise((res, err) => {
-
 			// use XMLHttpRequest since with fetch we cannot track the upload
-			const req = new XMLHttpRequest;
+			const req = new XMLHttpRequest();
 
 			req.responseType = 'json';
 
@@ -161,8 +143,9 @@ export default class Api {
 
 			let body = null;
 			// don't send a body if the method is get
-			if (method.toLowerCase() !== 'get')
+			if (method.toLowerCase() !== 'get') {
 				body = JSON.stringify(data);
+			}
 
 			// send request
 			req.send(body);

@@ -1,4 +1,3 @@
-
 import { parseType } from './parsetype.js';
 import DateTime from './datetime.js';
 
@@ -16,8 +15,8 @@ export default class ParseType {
 
 export class StringType extends ParseType {
 	static parse(val) {
-		if (typeof val !== 'string')
-			throw new Error('expected a string');
+		if (typeof val !== 'string') throw new Error('expected a string');
+
 		return val;
 	}
 }
@@ -61,8 +60,7 @@ export class Option extends ParseType {
 	}
 
 	parse(val) {
-		if (typeof val === 'undefined' || val === null)
-			return null;
+		if (typeof val === 'undefined' || val === null) return null;
 		return parseType(this.innerType, val);
 	}
 
@@ -96,6 +94,6 @@ export function typeFromStr(type) {
 		case 'any':
 			return AnyType;
 		default:
-			throw new Error(`unrecognized type ${ type }`);
+			throw new Error(`unrecognized type ${type}`);
 	}
 }

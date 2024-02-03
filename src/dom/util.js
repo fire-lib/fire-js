@@ -32,15 +32,15 @@ export class CustomEl {
 // append child
 export function a(to, ...els) {
 	els.forEach(el => {
-		if (!el)
-			return;
+		if (!el) return;
 
-		if (typeof el.__customEl__ === 'function')
+		if (typeof el.__customEl__ === 'function') {
 			to.appendChild(el.raw);
-		else
+		} else {
 			to.appendChild(el);
+		}
 	});
-	
+
 	return to;
 }
 
@@ -54,12 +54,13 @@ export function o(to, ev, fn) {
 // if (cond) the class is added
 // if (!cond) the class is removed
 export function ct(to, className, cond = null) {
-	if (cond === null)
+	if (cond === null) {
 		to.classList.toggle(className);
-	else if (cond)
+	} else if (cond) {
 		to.classList.add(className);
-	else
+	} else {
 		to.classList.remove(className);
+	}
 }
 
 // returns { x, y }
@@ -81,13 +82,11 @@ export function inViewY(el) {
 
 // name --my-var
 export function cssVar(name, el = null) {
-	if (!el)
-		el = document.documentElement;
+	if (!el) el = document.documentElement;
 	return getComputedStyle(el).getPropertyValue(name);
 }
 
 export function fontSize(el = null) {
-	if (!el)
-		el = document.documentElement;
+	if (!el) el = document.documentElement;
 	return parseFloat(getComputedStyle(el).fontSize);
 }

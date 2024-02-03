@@ -1,4 +1,3 @@
-
 export let DEFAULT_LANG = 'german';
 
 export function setDefault(lang) {
@@ -23,10 +22,8 @@ export function fromString(s) {
 }
 
 export function fromAny(a) {
-	if (typeof a === 'string')
-		return fromString(a);
-	if (a === null)
-		return fromString(DEFAULT_LANG);
+	if (typeof a === 'string') return fromString(a);
+	if (a === null) return fromString(DEFAULT_LANG);
 	// we expect it to already be a lang item (for example german)
 	return a;
 }
@@ -44,7 +41,7 @@ export const german = {
 		'September',
 		'Oktober',
 		'November',
-		'Dezember'
+		'Dezember',
 	],
 	days: [
 		'Sonntag',
@@ -53,12 +50,12 @@ export const german = {
 		'Mittwoch',
 		'Donnerstag',
 		'Freitag',
-		'Samstag'
+		'Samstag',
 	],
 	daysLetter: 'SMDMDFS'.split(''),
 	intWords: {
-		beforeGram: (num, unit) => `vor ${ num } ${ unit }`,
-		afterGram: (num, unit) => `in ${ num } ${ unit }`,
+		beforeGram: (num, unit) => `vor ${num} ${unit}`,
+		afterGram: (num, unit) => `in ${num} ${unit}`,
 
 		second: ['einer', 'Sekunde', 'Sekunden'],
 		minute: ['einer', 'Minute', 'Minuten'],
@@ -66,8 +63,8 @@ export const german = {
 		day: ['einem', 'Tag', 'Tagen'],
 		week: ['einer', 'Woche', 'Wochen'],
 		month: ['einem', 'Monat', 'Monaten'],
-		year: ['einem', 'Jahr', 'Jahren']
-	}
+		year: ['einem', 'Jahr', 'Jahren'],
+	},
 };
 
 export const english = {
@@ -83,7 +80,7 @@ export const english = {
 		'September',
 		'October',
 		'November',
-		'December'
+		'December',
 	],
 	days: [
 		'Sunday',
@@ -92,12 +89,12 @@ export const english = {
 		'Wednesday',
 		'Thursday',
 		'Friday',
-		'Saturday'
+		'Saturday',
 	],
 	daysLetter: 'SMTWTFS'.split(''),
 	intWords: {
-		beforeGram: (num, unit) => `${ num } ${ unit } ago`,
-		afterGram: (num, unit) => `in ${ num } ${ unit }`,
+		beforeGram: (num, unit) => `${num} ${unit} ago`,
+		afterGram: (num, unit) => `in ${num} ${unit}`,
 
 		second: ['one', 'second', 'seconds'],
 		minute: ['one', 'minute', 'minutes'],
@@ -105,8 +102,8 @@ export const english = {
 		day: ['one', 'day', 'days'],
 		week: ['one', 'week', 'weeks'],
 		month: ['one', 'month', 'months'],
-		year: ['one', 'year', 'years']
-	}
+		year: ['one', 'year', 'years'],
+	},
 };
 
 export const french = {
@@ -122,7 +119,7 @@ export const french = {
 		'Septembre',
 		'Octobre',
 		'Novembre',
-		'Décembre'
+		'Décembre',
 	],
 	days: [
 		'Dimanche',
@@ -131,12 +128,12 @@ export const french = {
 		'Mercredi',
 		'Jeudi',
 		'Vendredi',
-		'Samedi'
+		'Samedi',
 	],
 	daysLetter: 'DLMMJVS'.split(''),
 	intWords: {
-		beforeGram: (num, unit) => `il y a ${ num } ${ unit }`,
-		afterGram: (num, unit) => `en ${ num } ${ unit }`,
+		beforeGram: (num, unit) => `il y a ${num} ${unit}`,
+		afterGram: (num, unit) => `en ${num} ${unit}`,
 
 		second: ['une', 'seconde', 'secondes'],
 		minute: ['une', 'minute', 'minutes'],
@@ -144,6 +141,6 @@ export const french = {
 		day: ['un', 'jour', 'jours'],
 		week: ['une', 'semaine', 'semaines'],
 		month: ['un', 'mois', 'mois'],
-		year: ['un', 'an', 'ans']
-	}
+		year: ['un', 'an', 'ans'],
+	},
 };

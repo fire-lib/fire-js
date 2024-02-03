@@ -1,9 +1,8 @@
-
 import { fromAny } from './localization.js';
 
 export default class Duration {
-
-	constructor(millis) {// + is in the future - is in the past
+	constructor(millis) {
+		// + is in the future - is in the past
 		this.millis = millis;
 	}
 
@@ -38,11 +37,11 @@ export default class Duration {
 	}
 
 	/// returns null if lang is undefined or days < 1
-	toStrByDays(lang = null) {// month is maybe not always accurate
+	toStrByDays(lang = null) {
+		// month is maybe not always accurate
 		let days = this.days;
 		let l = fromAny(lang);
-		if (l === null)
-			return null;
+		if (l === null) return null;
 		l = l.intWords;
 
 		let pre = l.afterGram;
@@ -51,14 +50,10 @@ export default class Duration {
 			days *= -1;
 		}
 
-		if (days < 1)
-			return null;
-		if (days < 7)
-			return intInfo(pre, days, l.day);
-		if (days < 30)
-			return intInfo(pre, days / 7, l.week);
-		if (days < 30 * 12)
-			return intInfo(pre, days / 30, l.month);
+		if (days < 1) return null;
+		if (days < 7) return intInfo(pre, days, l.day);
+		if (days < 30) return intInfo(pre, days / 7, l.week);
+		if (days < 30 * 12) return intInfo(pre, days / 30, l.month);
 		return intInfo(pre, days / (30 * 12), l.year);
 	}
 
@@ -66,11 +61,9 @@ export default class Duration {
 	/// if null == uses default set in localization
 	toStr(lang = null) {
 		let l = fromAny(lang);
-		if (l === null)
-			return null;
+		if (l === null) return null;
 
-		if (Math.abs(this.days) >= 1)
-			return this.toStrByDays(l);
+		if (Math.abs(this.days) >= 1) return this.toStrByDays(l);
 
 		l = l.intWords;
 
@@ -81,16 +74,13 @@ export default class Duration {
 			secs *= -1;
 		}
 
-		if (secs < 60)
-			return intInfo(pre, secs, l.second);
-		if (secs < 60 * 60)
-			return intInfo(pre, secs / 60, l.minute);
+		if (secs < 60) return intInfo(pre, secs, l.second);
+		if (secs < 60 * 60) return intInfo(pre, secs / 60, l.minute);
 
 		// because days > 1 get filtered out before
 		// this must be in hours
 		return intInfo(pre, secs / (60 * 60), l.hour);
 	}
-
 }
 
 // int = intelligent

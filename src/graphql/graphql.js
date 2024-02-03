@@ -6,8 +6,7 @@ export default class GraphQl {
 	}
 
 	async request(query, variables = {}, headers = {}) {
-		if (!this.url)
-			throw GraphQlError.newOther('GraphQl url not defined');
+		if (!this.url) throw GraphQlError.newOther('GraphQl url not defined');
 
 		headers['content-type'] = 'application/json';
 
@@ -17,8 +16,9 @@ export default class GraphQl {
 				headers,
 				method: 'POST',
 				body: JSON.stringify({
-					query, variables
-				})
+					query,
+					variables,
+				}),
 			});
 
 			const json = await resp.json();
@@ -42,8 +42,8 @@ export default class GraphQl {
 			throw new GraphQlError('Unknown', {
 				message: e.toString(),
 				extensions: {
-					nativeError: e
-				}
+					nativeError: e,
+				},
 			});
 		}
 	}

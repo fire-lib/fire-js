@@ -15,10 +15,11 @@ export default class GraphQlError {
 	constructor(kind, errors, data = null) {
 		this.kind = kind;
 
-		if (typeof errors === 'string')
+		if (typeof errors === 'string') {
 			errors = [{ message: errors }];
-		else if (!Array.isArray(errors))
+		} else if (!Array.isArray(errors)) {
 			errors = [errors];
+		}
 
 		this.errors = errors;
 		this.data = data;
@@ -32,7 +33,7 @@ export default class GraphQlError {
 		return new GraphQlError(
 			apiError?.kind ?? 'Unknown',
 			json.errors,
-			json.data
+			json.data,
 		);
 	}
 

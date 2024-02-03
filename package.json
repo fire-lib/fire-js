@@ -1,11 +1,11 @@
 {
 	"name": "fire-lib-js",
-	"version": "0.2.17",
+	"version": "0.3.0-alpha.1",
 	"author": "Sören Meier <info@soerenmeier.ch>",
 	"type": "module",
 	"scripts": {
-		"docs": "jsdoc -c jsdoc.conf.json",
-		"check": "tsc",
+		"test": "vitest",
+		"check": "prettier -c .",
 		"lint": "eslint ./src"
 	},
 	"repository": {
@@ -18,7 +18,7 @@
 	},
 	"devDependencies": {
 		"eslint": "^8.45.0",
-		"jsdoc": "^4.0.2",
-		"typescript": "^5.1.6"
+		"vitest": "^1.1.3",
+		"prettier": "^3.2.4"
 	}
 }

@@ -1,4 +1,3 @@
-
 import { parseType } from './parsetype.js';
 import ParseType from './parsetypes.js';
 

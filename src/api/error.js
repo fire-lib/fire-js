@@ -1,4 +1,3 @@
-
 export default class ApiError {
 	/*
 	fields:
@@ -23,12 +22,10 @@ export default class ApiError {
 	/// { 'kind': data }
 	/// { kind, data }
 	static fromJson(obj) {
-		if (typeof obj === 'string')
-			return new ApiError(obj, null);
+		if (typeof obj === 'string') return new ApiError(obj, null);
 
 		// {kind, data}
-		if ('kind' in obj)
-			return new ApiError(obj.kind, obj?.data ?? null);
+		if ('kind' in obj) return new ApiError(obj.kind, obj?.data ?? null);
 
 		// {'kind': data}
 		const [kind, data] = Object.entries(obj)[0];
@@ -44,7 +41,7 @@ export default class ApiError {
 	}
 
 	toString() {
-		return `${ this.kind }: ${ this.msg }`;
+		return `${this.kind}: ${this.msg}`;
 	}
 }
 

@@ -18,10 +18,8 @@ export function timeout(ms) {
  * @returns {number} -1 if a > b, 1 if b > a, 0 otherwise.
  */
 export function sortToLower(a, b) {
-	if (a > b)
-		return -1;
-	else if (b > a)
-		return 1;
+	if (a > b) return -1;
+	else if (b > a) return 1;
 	return 0;
 }
 
@@ -33,10 +31,8 @@ export function sortToLower(a, b) {
  * @returns {number} 1 if a > b, -1 if b > a, 0 otherwise.
  */
 export function sortToHigher(a, b) {
-	if (a > b)
-		return 1;
-	else if (b > a)
-		return -1;
+	if (a > b) return 1;
+	else if (b > a) return -1;
 	return 0;
 }
 
@@ -49,7 +45,7 @@ export function sortToHigher(a, b) {
  * @returns {number} The current time in milliseconds.
  */
 export function time() {
-	return (new Date).getTime();
+	return new Date().getTime();
 }
 
 /**
@@ -62,15 +58,18 @@ export function time() {
 export function padZero(val, length = 2) {
 	// make val a string
 	val += '';
-	if (val.length >= length)
-		return val;
+	if (val.length >= length) return val;
+
 	let prev = '';
-	for (let i = val.length; i < length; i++)
+	for (let i = val.length; i < length; i++) {
 		prev += '0';
+	}
+
 	return prev + val;
 }
 
-export const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+export const ALPHABET =
+	'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 export const ALPHABET_LENGTH = ALPHABET.length;
 
 /**
@@ -81,8 +80,9 @@ export const ALPHABET_LENGTH = ALPHABET.length;
  */
 export function randomToken(length = 8) {
 	let s = '';
-	for (let i = 0; i < length; i++)
+	for (let i = 0; i < length; i++) {
 		s += ALPHABET[Math.floor(Math.random() * ALPHABET_LENGTH)];
+	}
 	return s;
 }
 
@@ -114,8 +114,7 @@ export function range(start, end, step = 1) {
  * @returns {*} A random element from the array, or null.
  */
 export function randomEl(arr) {
-	if (arr.length === 0)
-		return null;
+	if (arr.length === 0) return null;
 
 	const i = Math.floor(Math.random() * arr.length);
 	return arr[i];
@@ -130,16 +129,14 @@ export function randomEl(arr) {
  * @returns {number} 0 if no match, 1+ if there was a match (lower is better).
  */
 export function match(search, val) {
-	if (search.length === 0)
-		return 0;
+	if (search.length === 0) return 0;
 
 	search = search.normalize('NFKD').toLowerCase();
 	val = val.normalize('NFKD').toLowerCase();
 
 	const i = val.indexOf(search);
 	// search not found in val
-	if (i === -1)
-		return 0;
+	if (i === -1) return 0;
 
 	const distLeft = searchSpaceLeft(i, val);
 	const distRight = searchSpaceLeft(i + search.length, val);
@@ -152,8 +149,8 @@ function searchSpaceLeft(idx, val) {
 	let dist = 0;
 	while (idx > 0) {
 		idx--;
-		if (val[idx] === ' ')
-			return dist;
+		if (val[idx] === ' ') return dist;
+
 		dist++;
 	}
 	return dist;
@@ -167,8 +164,8 @@ function searchSpaceRight(idx, val) {
 	let dist = 0;
 	while (idx < val.length - 1) {
 		idx++;
-		if (val[idx] === ' ')
-			return dist;
+		if (val[idx] === ' ') return dist;
+
 		dist++;
 	}
 	return dist;

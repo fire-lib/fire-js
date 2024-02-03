@@ -1,8 +1,6 @@
-
 const TWO_PI = 2 * Math.PI;
 
 export default class Context2d {
-
 	constructor(canvas) {
 		this.canvas = canvas;
 		this.ctx = canvas.getContext('2d');
@@ -150,5 +148,4 @@ export default class Context2d {
 	drawImage(...args) {
 		this.ctx.drawImage(...args);
 	}
-
 }

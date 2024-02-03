@@ -2,26 +2,25 @@ import ApiError from './error.js';
 import Data from './../data/data.js';
 import Listeners from './../util/listeners.js';
 
-
 /// The Stream is responsible for managing your connection with a server
 /// when you call connect Stream will try to create a WebSocket connection.
-/// 
+///
 /// At this point you can start a Sender or Receiver. The request will wait
 /// until a channel could be established or the server closed it.
-/// 
+///
 /// You can listen for messages or send them until you receive the error event
 /// which will mean the channel was closed. You can then try to create a new
 /// one.
-/// 
+///
 /// When the Stream triggers an error event this might mean the connection is
 /// closed but doesn't have to. You should wait until you receive the close
 /// event to be sure. After that you can call connect again.
-/// 
-/// 
+///
+///
 /// ## Important
 /// Only use functions all properties are private also functions prefix with an
 /// underscore.
-/// 
+///
 // ## Internal
 // We expect that the WebSocket class only triggers a close event if the connect
 // was established. This is the case in some circumstances but not in all.
@@ -44,17 +43,17 @@ export default class Stream {
 		this.connected = false;
 
 		// event listeners these names refer to the events we wan't to trigger
-		this.openListeners = new Listeners;
-		this.errorListeners = new Listeners;
-		this.closeListeners = new Listeners;
+		this.openListeners = new Listeners();
+		this.errorListeners = new Listeners();
+		this.closeListeners = new Listeners();
 
 		// on received a close event the senders and receivers are already
 		// cleaned
 
 		// <Action, Sender>
-		this.senders = new Map;
+		this.senders = new Map();
 		// <Action, Receiver>
-		this.receivers = new Map;
+		this.receivers = new Map();
 	}
 
 	/// Only returns true if the connection state is Open.
@@ -70,7 +69,7 @@ export default class Stream {
 		url.protocol = encrypted ? 'wss:' : 'ws:';
 		let strUrl = url.toString();
 		if (strUrl.endsWith('/'))
-			strUrl = strUrl.substr(0, strUrl.length - 1);
+			strUrl = strUrl.substring(0, strUrl.length - 1);
 		return strUrl + this.path;
 	}
 
@@ -79,8 +78,7 @@ export default class Stream {
 	/// ## Throws
 	/// Or if there was an issue with the address.
 	connect() {
-		if (this.ws)
-			throw new ApiError('Other', 'Connection already started');
+		if (this.ws) throw new ApiError('Other', 'Connection already started');
 
 		const addr = this._addr();
 
@@ -132,8 +130,7 @@ export default class Stream {
 		onClose = () => {
 			// As noted in the comment of the class we ignore this event
 			// if we're not connected
-			if (!this.connected)
-				return;
+			if (!this.connected) return;
 
 			close();
 		};
@@ -154,20 +151,18 @@ export default class Stream {
 
 	/// Closes a connection if there is one
 	close() {
-		if (!this.ws)
-			return;
+		if (!this.ws) return;
 
 		this.ws.close();
 	}
 
 	/// this promise waits until a connection is established
 	/// so there might be close events in between
-	/// 
+	///
 	/// Does not throw an exception
 	async _waitReady() {
 		return await new Promise((resolve, _error) => {
-			if (this.connected)
-				return resolve();
+			if (this.connected) return resolve();
 
 			let rmFn = () => {};
 			rmFn = this.openListeners.add(() => {
@@ -178,7 +173,7 @@ export default class Stream {
 	}
 
 	/// Creates a new Sender
-	/// 
+	///
 	/// ## Throws
 	/// If the action already exists.
 	newSender(action) {
@@ -192,7 +187,7 @@ export default class Stream {
 	}
 
 	/// Creates a new Receiver
-	/// 
+	///
 	/// ## Throws
 	/// If the action already exists.
 	newReceiver(action) {
@@ -223,8 +218,7 @@ export default class Stream {
 			case 'SenderRequest':
 			case 'SenderClose':
 				sender = this.senders.get(msg.action);
-				if (!sender)
-					return console.log('sender not found', msg.action);
+				if (!sender) return console.log('sender not found', msg.action);
 
 				sender._onMsg(msg);
 				return;
@@ -250,11 +244,14 @@ export default class Stream {
 // protocolMessage
 export class ProtMessage extends Data {
 	constructor(data) {
-		super({
-			kind: 'str',
-			action: 'str',
-			data: 'any'
-		}, data);
+		super(
+			{
+				kind: 'str',
+				action: 'str',
+				data: 'any',
+			},
+			data,
+		);
 	}
 }
 
@@ -278,13 +275,12 @@ export class Sender {
 		/// 4: Opened
 		this.state = STATE_READY_TO_OPEN;
 
-		this.openProm = null;// {resolve, error}
+		this.openProm = null; // {resolve, error}
 
-		this.errorListeners = new Listeners;
+		this.errorListeners = new Listeners();
 
 		this.rmCloseListener = stream.onClose(() => {
-			if (this.state < STATE_OPENING)
-				return;
+			if (this.state < STATE_OPENING) return;
 
 			this._closeWithError();
 		});
@@ -307,7 +303,7 @@ export class Sender {
 	}
 
 	/// Try to open a sender
-	/// 
+	///
 	/// ## Throws
 	/// If the sender is already open or if requesting a sender failed
 	async open(req = null) {
@@ -329,7 +325,7 @@ export class Sender {
 			this.stream._send({
 				kind: 'SenderRequest',
 				action: this.action,
-				data: req
+				data: req,
 			});
 
 			await prom;
@@ -357,9 +353,9 @@ export class Sender {
 				this.openProm.resolve();
 
 				break;
+
 			// the request was closed
 			case 'SenderClose': {
-
 				let error = new ApiError('Other', 'Sender closed unexpected');
 
 				// let's try to convert the msg into an ApiError
@@ -398,13 +394,13 @@ export class Sender {
 		this.stream._send({
 			kind: 'SenderMessage',
 			action: this.action,
-			data: msg
+			data: msg,
 		});
 	}
 
 	/// When you receive this event you know the channel closed.
 	/// You can call open again to try to reconnect.
-	/// 
+	///
 	/// Returns a fn to unsubscribe
 	onError(fn) {
 		return this.errorListeners.add(fn);
@@ -412,17 +408,16 @@ export class Sender {
 
 	/// Unregisters the Sender from a Stream. You will need to call newSender
 	/// again and cannot just call open.
-	/// 
+	///
 	/// ## Note
 	/// This might trigger the error event if sending the senderClosed failed
 	/// and the connection get's closed right after that. This still means
 	/// You where unregistered from the stream.
-	/// 
+	///
 	/// ## Throws
 	/// If the open call is not finished.
 	close() {
-		if (this.state === STATE_CLOSED_FOREVER)
-			return;
+		if (this.state === STATE_CLOSED_FOREVER) return;
 
 		if (
 			this.state === STATE_WAITING_ON_CONNECTION ||
@@ -435,7 +430,7 @@ export class Sender {
 				this.stream._send({
 					kind: 'SenderClose',
 					action: this.action,
-					data: null
+					data: null,
 				});
 			} catch (e) {
 				console.log('could not send SenderClose', e);
@@ -465,16 +460,15 @@ export class Receiver {
 		/// 4: Opened
 		this.state = STATE_READY_TO_OPEN;
 
-		this.openProm = null;// {resolve, error}
+		this.openProm = null; // {resolve, error}
 
 		this.parseFn = d => d;
 
-		this.errorListeners = new Listeners;
-		this.messageListeners = new Listeners;
+		this.errorListeners = new Listeners();
+		this.messageListeners = new Listeners();
 
 		this.rmCloseListener = stream.onClose(() => {
-			if (this.state < STATE_OPENING)
-				return;
+			if (this.state < STATE_OPENING) return;
 
 			this._closeWithError();
 		});
@@ -497,7 +491,7 @@ export class Receiver {
 	}
 
 	/// Try to open a sender
-	/// 
+	///
 	/// ## Throws
 	/// If the sender is already open or if requesting a sender failed
 	async open(req = null) {
@@ -519,7 +513,7 @@ export class Receiver {
 			this.stream._send({
 				kind: 'ReceiverRequest',
 				action: this.action,
-				data: req
+				data: req,
 			});
 
 			await prom;
@@ -547,16 +541,16 @@ export class Receiver {
 				this.openProm.resolve();
 
 				break;
+
 			// we receive a new message
 			case 'ReceiverMessage': {
-
 				const parsed = this.parseFn(msg.data);
 				this.messageListeners.trigger(parsed);
 				break;
 			}
+
 			// the request was closed
 			case 'ReceiverClose': {
-
 				let error = new ApiError('Other', 'Receiver closed unexpected');
 
 				// let's try to convert the msg into an ApiError
@@ -598,7 +592,7 @@ export class Receiver {
 
 	/// When you receive this event you know the channel closed.
 	/// You can call open again to try to reconnect.
-	/// 
+	///
 	/// Returns a fn to unsubscribe
 	onError(fn) {
 		return this.errorListeners.add(fn);
@@ -606,12 +600,12 @@ export class Receiver {
 
 	/// Unregisters the Receiver from a Stream. You will need to call
 	/// newReceiver again and cannot just call open.
-	/// 
+	///
 	/// ## Note
 	/// This might trigger the error event if sending the receiverClosed failed
 	/// and the connection get's closed right after that. This still means
 	/// You where unregistered from the stream.
-	/// 
+	///
 	/// ## Throws
 	/// If the open call is not finished.
 	close() {
@@ -626,8 +620,7 @@ export class Receiver {
 	/// Closes the channel without unregistering on the Stream.
 	/// This allows you to call open again later.
 	closeTemporary() {
-		if (this.state === STATE_CLOSED_FOREVER)
-			return;
+		if (this.state === STATE_CLOSED_FOREVER) return;
 
 		if (
 			this.state === STATE_WAITING_ON_CONNECTION ||
@@ -640,7 +633,7 @@ export class Receiver {
 				this.stream._send({
 					kind: 'ReceiverClose',
 					action: this.action,
-					data: null
+					data: null,
 				});
 			} catch (e) {
 				console.log('could not send ReceiverClose', e);
@@ -682,15 +675,13 @@ export class ReceiverManager {
 		this.listeners++;
 		const rmFn = this.receiver.onMessage(fn);
 
-		if (this.state === STATE_MAN_READY_TO_OPEN)
-			this._open();
+		if (this.state === STATE_MAN_READY_TO_OPEN) this._open();
 
 		return () => {
 			this.listeners--;
 			rmFn();
 
-			if (this.listeners === 0)
-				this._onClose();
+			if (this.listeners === 0) this._onClose();
 		};
 	}
 
@@ -714,8 +705,7 @@ export class ReceiverManager {
 
 				// the channel is open now
 				this.state = STATE_MAN_OPEN;
-				break
-
+				break;
 			} catch (e) {
 				// opening failed
 				hasError = true;
@@ -723,7 +713,7 @@ export class ReceiverManager {
 			}
 		}
 	}
-	
+
 	_onError(_e) {
 		if (this.state !== STATE_MAN_OPEN) {
 			// probably still opening so we don't need to close anything

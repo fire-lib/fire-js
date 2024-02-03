@@ -19,9 +19,8 @@ export default class NonConcurrent {
 			ready: () => {
 				this.running = false;
 				const resolve = this.listeners.shift();
-				if (resolve)
-					resolve();
-			}
+				if (resolve) resolve();
+			},
 		};
 	}
 }

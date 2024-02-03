@@ -1,4 +1,3 @@
-
 import { padZero } from './../util.js';
 
 export default class DateTimeRange {
@@ -19,14 +18,17 @@ export default class DateTimeRange {
 		const f = this.from;
 		const t = this.to;
 
-		if (f.year !== t.year)
+		if (f.year !== t.year) {
 			return f.toStrDate() + ' - ' + t.toStrDate();
+		}
 
-		if (f.month !== t.month)
+		if (f.month !== t.month) {
 			return f.toStrShortDate() + ' - ' + t.toStrDate();
+		}
 
-		if (f.date !== t.date)
+		if (f.date !== t.date) {
 			return padZero(f.date) + ' - ' + t.toStrDate();
+		}
 
 		return t.toStrDate();
 	}
@@ -37,8 +39,7 @@ export default class DateTimeRange {
 		const f = this.from.toStrShortTime();
 		const t = this.to.toStrShortTime();
 
-		if (f !== t)
-			return f + ' - ' + t;
+		if (f !== t) return f + ' - ' + t;
 		return f;
 	}
 

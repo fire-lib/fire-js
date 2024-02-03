@@ -50,8 +50,7 @@ export default class SlotArray {
 	 */
 	entries() {
 		// @ts-ignore
-		return this.inner.map((v, i) => [i, v])
-			.filter(([_, v]) => v !== null);
+		return this.inner.map((v, i) => [i, v]).filter(([_, v]) => v !== null);
 	}
 
 	/**

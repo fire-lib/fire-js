@@ -34,19 +34,20 @@ export default class Date {
 	 * Create a new Date instance
 	 * @constructor
 	 * @param {Date|string|number} date - The date value. Default is
-	 * current date. 
+	 * current date.
 	 * If it's a string or number, convert it to a date.
 	 * @throws {Error} Will throw an error if date is an invalid Date.
 	 */
 	constructor(date = null) {
 		if (typeof date === 'undefined' || date === null) {
-			this.raw = new globalThis.Date;
+			this.raw = new globalThis.Date();
 			this.raw.setHours(0, 0, 0, 0);
 			return;
 		}
 
-		if (isDateObject(date))
+		if (isDateObject(date)) {
 			date = date.raw;
+		}
 
 		if (date instanceof globalThis.Date) {
 			this.raw = date;
@@ -55,8 +56,9 @@ export default class Date {
 
 		this.raw = new globalThis.Date(date);
 
-		if (isNaN(this.raw))
+		if (isNaN(this.raw)) {
 			throw new Error('invalid Date');
+		}
 	}
 
 	/**
@@ -65,10 +67,12 @@ export default class Date {
 	 * today, otherwise false
 	 */
 	isToday() {
-		const today = new Date;
-		return this.year == today.year &&
+		const today = new Date();
+		return (
+			this.year == today.year &&
 			this.month == today.month &&
-			this.date == today.date;
+			this.date == today.date
+		);
 	}
 
 	/**
@@ -180,7 +184,7 @@ export default class Date {
 	 * @returns {string} A string representing the date in the form dd.mm
 	 */
 	toStrShort() {
-		return `${ padZero(this.date) }.${ padZero(this.month + 1) }`;
+		return `${padZero(this.date)}.${padZero(this.month + 1)}`;
 	}
 
 	/**
@@ -189,7 +193,7 @@ export default class Date {
 	 */
 	toStr() {
 		const month = padZero(this.month + 1);
-		return `${ padZero(this.date) }.${ month }.${ this.year }`;
+		return `${padZero(this.date)}.${month}.${this.year}`;
 	}
 
 	/**
@@ -198,7 +202,7 @@ export default class Date {
 	 */
 	toBrowserDate() {
 		const month = padZero(this.month + 1);
-		return `${ this.year }-${ month }-${ padZero(this.date) }`;
+		return `${this.year}-${month}-${padZero(this.date)}`;
 	}
 
 	toJSON() {
