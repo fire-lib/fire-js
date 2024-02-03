@@ -1,14 +1,29 @@
-import ApiError from './error.js';
+import ApiError from './ApiError.js';
 
+/**
+ * Api class to handle requests to a server
+ */
 export default class Api {
 	constructor(addr = null) {
 		this.addr = addr;
 	}
 
+	/**
+	 * Prepares a json object to be sent as a header
+	 */
 	static jsonHeader(data) {
 		return encodeURIComponent(JSON.stringify(data));
 	}
 
+	/**
+	 * Send a request to the server
+	 *
+	 * @param {string} method - The method of the request
+	 * @param {string} path - The path of the request
+	 * @param {object|null} data - The data to be sent
+	 * @param {object} headers - The headers to be sent
+	 * @param {object} opts - The additional options to be sent to fetch
+	 */
 	async request(method, path, data = null, headers = {}, opts = {}) {
 		let err;
 
@@ -44,6 +59,15 @@ export default class Api {
 		throw err;
 	}
 
+	/**
+	 * Send a request to the server with a file
+	 *
+	 * @param {string} method - The method of the request
+	 * @param {string} path - The path of the request
+	 * @param {File} file - The file to be sent
+	 * @param {function|null} progress - The progress callback
+	 * @param {object} headers - The headers to be sent
+	 */
 	async requestWithFile(method, path, file, progress = null, headers = {}) {
 		if (!progress) progress = () => {};
 
@@ -99,6 +123,15 @@ export default class Api {
 		});
 	}
 
+	/**
+	 * Send a request to the server with a timeout
+	 *
+	 * @param {string} method - The method of the request
+	 * @param {string} path - The path of the request
+	 * @param {object|null} data - The data to be sent
+	 * @param {object} headers - The headers to be sent
+	 * @param {number} timeout - The timeout of the request if the value is 0 there is no timeout
+	 */
 	async requestTimeout(method, path, data = null, headers = {}, timeout = 0) {
 		if (!this.addr) throw ApiError.newOther('Server addr not defined');
 

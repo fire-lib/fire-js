@@ -1,4 +1,4 @@
-import { padZero } from './../util.js';
+import { padZero } from '../utils/utils.js';
 
 export default class DateTimeRange {
 	/// expects

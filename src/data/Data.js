@@ -1,4 +1,4 @@
-import { parseType, parseTypeDefault } from './parsetype.js';
+import { parseType, parseTypeDefault } from './parseTypes.js';
 
 export default class Data {
 	// the data will be assigned to this

@@ -1,4 +1,4 @@
-/** @module util */
+/** @module utils */
 
 /**
  * Delays for a specified amount of time.
@@ -34,18 +34,6 @@ export function sortToHigher(a, b) {
 	if (a > b) return 1;
 	else if (b > a) return -1;
 	return 0;
-}
-
-// > 0 b .. a
-// < 0 a .. b
-
-/**
- * Gets the current time in milliseconds.
- *
- * @returns {number} The current time in milliseconds.
- */
-export function time() {
-	return new Date().getTime();
 }
 
 /**
@@ -128,7 +116,7 @@ export function randomEl(arr) {
  * @param {string} val - The value to check for a match.
  * @returns {number} 0 if no match, 1+ if there was a match (lower is better).
  */
-export function match(search, val) {
+export function searchMatch(search, val) {
 	if (search.length === 0) return 0;
 
 	search = search.normalize('NFKD').toLowerCase();

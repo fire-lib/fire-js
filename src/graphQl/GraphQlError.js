@@ -1,4 +1,4 @@
-import ApiError from '../api/error.js';
+import ApiError from '../api/ApiError.js';
 
 export default class GraphQlError {
 	/*

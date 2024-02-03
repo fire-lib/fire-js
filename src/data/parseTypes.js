@@ -1,4 +1,73 @@
-import { typeFromStr } from './parsetypes.js';
+import ParseType from './ParseType.js';
+import OptionType from './OptionType.js';
+import DateTime from '../time/DateTime.js';
+
+export class StringType extends ParseType {
+	static parse(val) {
+		if (typeof val !== 'string') throw new Error('expected a string');
+
+		return val;
+	}
+}
+
+export class BoolType extends ParseType {
+	static parse(val) {
+		return !!val;
+	}
+}
+
+export class IntType extends ParseType {
+	static parse(val) {
+		return parseInt(val);
+	}
+}
+
+export class FloatType extends ParseType {
+	static parse(val) {
+		return parseFloat(val);
+	}
+}
+
+export class AnyType extends ParseType {
+	static parse(val) {
+		return val;
+	}
+}
+
+export class UniqueIdType extends ParseType {
+	static parse(val) {
+		if (typeof val !== 'string' || val.length !== 14)
+			throw new Error('expected uid');
+		return val;
+	}
+}
+
+export function typeFromStr(type) {
+	// allow for optstr
+	if (type.length > 3 && type.slice(0, 3) === 'opt')
+		return new OptionType(typeFromStr(type.slice(3)));
+
+	switch (type) {
+		case 'arr':
+			throw new Error('use [] instead');
+		case 'uid':
+			return UniqueIdType;
+		case 'str':
+			return StringType;
+		case 'bool':
+			return BoolType;
+		case 'int':
+			return IntType;
+		case 'float':
+			return FloatType;
+		case 'datetime':
+			return DateTime;
+		case 'any':
+			return AnyType;
+		default:
+			throw new Error(`unrecognized type ${type}`);
+	}
+}
 
 export function parseType(type, val) {
 	switch (typeof type) {

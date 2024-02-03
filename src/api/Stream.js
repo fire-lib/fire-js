@@ -1,26 +1,27 @@
-import ApiError from './error.js';
-import Data from './../data/data.js';
-import Listeners from './../util/listeners.js';
+import ApiError from './ApiError.js';
+import Data from '../data/Data.js';
+import Listeners from '../sync/Listeners.js';
 
-/// The Stream is responsible for managing your connection with a server
-/// when you call connect Stream will try to create a WebSocket connection.
-///
-/// At this point you can start a Sender or Receiver. The request will wait
-/// until a channel could be established or the server closed it.
-///
-/// You can listen for messages or send them until you receive the error event
-/// which will mean the channel was closed. You can then try to create a new
-/// one.
-///
-/// When the Stream triggers an error event this might mean the connection is
-/// closed but doesn't have to. You should wait until you receive the close
-/// event to be sure. After that you can call connect again.
-///
-///
-/// ## Important
-/// Only use functions all properties are private also functions prefix with an
-/// underscore.
-///
+/**
+ * The Stream is responsible for managing your connection with a server
+ * when you call connect Stream will try to create a WebSocket connection.
+ *
+ * At this point you can start a Sender or Receiver. The request will wait
+ * until a channel could be established or the server closed it.
+ *
+ * You can listen for messages or send them until you receive the error event
+ * which will mean the channel was closed. You can then try to create a new
+ * one.
+ *
+ * When the Stream triggers an error event this might mean the connection is
+ * closed but doesn't have to. You should wait until you receive the close
+ * event to be sure. After that you can call connect again.
+ *
+ *
+ * ## Important
+ * Only use functions all properties are private also functions prefix with an
+ * underscore.
+ */
 // ## Internal
 // We expect that the WebSocket class only triggers a close event if the connect
 // was established. This is the case in some circumstances but not in all.

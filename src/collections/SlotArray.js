@@ -1,7 +1,7 @@
 /**
  * Implements a slot array data structure.
  * @class
- * @exports util/slotarray/SlotArray
+ * @exports collections/SlotArray/SlotArray
  */
 export default class SlotArray {
 	/**

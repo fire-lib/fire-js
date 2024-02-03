@@ -1,4 +1,4 @@
-import GraphQlError, { isGraphQlErrorObject } from './error.js';
+import GraphQlError, { isGraphQlErrorObject } from './GraphQlError.js';
 
 export default class GraphQl {
 	constructor(url = null) {

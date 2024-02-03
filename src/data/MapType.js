@@ -1,5 +1,5 @@
-import { parseType } from './parsetype.js';
-import ParseType from './parsetypes.js';
+import ParseType from './ParseType.js';
+import { parseType } from './parseTypes.js';
 
 export default class MapType extends ParseType {
 	constructor(keyType, valueType) {
