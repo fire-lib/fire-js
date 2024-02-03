@@ -1,37 +1,37 @@
 name: CI
 
 on:
-    push:
-        branches: [master]
-    pull_request:
-        branches: [master]
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
-    lint:
-        runs-on: ubuntu-latest
+  lint:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Check prettier
-              run: npm run check
-			
-			- name: Run lint
-              run: npm run lint
-	
-	tests:
-        runs-on: ubuntu-latest
+      - name: Check prettier
+        run: npm run check
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
+      - name: Run lint
+        run: npm run lint
 
-            - name: Install dependencies
-              run: npm ci
+  tests:
+    runs-on: ubuntu-latest
 
-            - name: Run Test
-              run: npm run test run
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Test
+        run: npm run test run
