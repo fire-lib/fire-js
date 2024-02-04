@@ -116,7 +116,7 @@ export function randomEl(arr) {
  * @param {string} val - The value to check for a match.
  * @returns {number} 0 if no match, 1+ if there was a match (lower is better).
  */
-export function searchMatch(search, val) {
+export function searchScore(search, val) {
 	if (search.length === 0) return 0;
 
 	search = search.normalize('NFKD').toLowerCase();

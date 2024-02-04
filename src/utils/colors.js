@@ -1,6 +1,8 @@
 import { range } from './utils.js';
 
-/// returns expects a hex value with 6 values `rgba(0,0,0,a)`
+/**
+ * returns expects a hex value with 6 values `rgba(0,0,0,a)`
+ */
 export function toRgba(val, alpha = 1) {
 	val = val.trim();
 	if (!val.startsWith('#') || val.length !== 7)
