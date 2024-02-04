@@ -1,7 +1,7 @@
 /**
  * Manages event listeners or functions.
  * @class
- * @exports util/listeners/Listeners
+ * @exports sync/listeners/Listeners
  */
 export default class Listeners {
 	/**
