@@ -1,11 +1,18 @@
 /// synchronisation point
 export default class NonConcurrent {
+	/**
+	 * Creates a new NonConcurrent
+	 */
 	constructor() {
 		this.listeners = [];
 		this.running = false;
 	}
 
-	// returns an object where you need to call ready once done
+	/**
+	 * Waits until any other non-concurrent requests is done then waits until you call ready
+	 *
+	 * returns an object where you need to call ready once done
+	 */
 	async start() {
 		if (this.running) {
 			await new Promise(resolve => {
