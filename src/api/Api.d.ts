@@ -38,7 +38,7 @@ export default class Api {
 		data?: object | null,
 		headers?: object,
 		opts?: object,
-	): Promise<object>;
+	): Promise<any>;
 
 	/**
 	 * Send a request to the server with a file
@@ -57,7 +57,7 @@ export default class Api {
 		file: File,
 		progress: ((event: ProgressEvent) => void) | null,
 		headers: object,
-	): Promise<object>;
+	): Promise<any>;
 
 	/**
 	 * Send a request to the server with a timeout
@@ -74,5 +74,5 @@ export default class Api {
 		data?: object | null,
 		headers?: object,
 		timeout?: number,
-	): Promise<object>;
+	): Promise<any>;
 }
