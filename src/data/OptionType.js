@@ -1,7 +1,7 @@
 import ParseType from './ParseType.js';
 import { parseType } from './parseTypes.js';
 
-export class Option extends ParseType {
+export default class OptionType extends ParseType {
 	constructor(innerType) {
 		super();
 		this.innerType = innerType;
