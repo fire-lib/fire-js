@@ -22,7 +22,7 @@ export declare function sortToLower(a: any, b: any): number;
  * @param b - The second value to compare.
  * @returns 1 if a > b, -1 if b > a, 0 otherwise.
  */
-export declare function sortToUpper(a: any, b: any): number;
+export declare function sortToHigher(a: any, b: any): number;
 
 /**
  * Pads a value with leading zeros until it reaches a specified length.
