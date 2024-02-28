@@ -1,4 +1,6 @@
 export default class DateTime {
+	raw: Date;
+
 	/**
 	 * Tries to creates a new DateTime instance
 	 */

@@ -1,13 +1,16 @@
 import DateTime from './DateTime';
 
 export default class DateTimeRange {
+	from: DateTime;
+	to: DateTime;
+
 	/**
 	 * Create a new DateTimeRange instance
 	 * @constructor
-	 * @param {DateTime} start - The start date value
-	 * @param {DateTime} end - The end date value
+	 * @param {DateTime} from - The start date value
+	 * @param {DateTime} to - The end date value
 	 */
-	constructor(start: DateTime, end: DateTime);
+	constructor(from: DateTime, to: DateTime);
 
 	/**
 	 * returns
