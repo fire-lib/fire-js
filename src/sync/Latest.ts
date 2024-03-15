@@ -41,7 +41,10 @@ export default class Latest {
 				this.listeners.forEach(resolve => resolve(true));
 				this.listeners = [];
 
+				// queued as a microtask
 				latest(false);
+
+				this.running = false;
 			},
 		};
 	}
