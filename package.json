@@ -31,6 +31,7 @@
 		"./sync/Barrier": "./dist/sync/Barrier.js",
 		"./sync/Listeners": "./dist/sync/Listeners.js",
 		"./sync/NonConcurrent": "./dist/sync/NonConcurrent.js",
+		"./sync/Latest": "./dist/sync/Latest.js",
 		"./time/Date": "./src/time/Date.js",
 		"./time/DateTime": "./src/time/DateTime.js",
 		"./time/DateTimeRange": "./src/time/DateTimeRange.js",
