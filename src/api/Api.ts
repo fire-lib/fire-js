@@ -1,30 +1,48 @@
-import ApiError from './ApiError.js';
+import ApiError from './ApiError';
 
 /**
  * Api class to handle requests to a server
  */
 export default class Api {
-	constructor(addr = null) {
+	/**
+	 * get or set the api address
+	 */
+	addr: string;
+
+	/**
+	 * Creates a new Api instance
+	 */
+	constructor(addr: string) {
 		this.addr = addr;
 	}
 
 	/**
 	 * Prepares a json object to be sent as a header
 	 */
-	static jsonHeader(data) {
+	static jsonHeader(data: object): string {
 		return encodeURIComponent(JSON.stringify(data));
 	}
 
 	/**
 	 * Send a request to the server
 	 *
-	 * @param {string} method - The method of the request
-	 * @param {string} path - The path of the request
-	 * @param {object|null} data - The data to be sent
-	 * @param {object} headers - The headers to be sent
-	 * @param {object} opts - The additional options to be sent to fetch
+	 * @param method - The method of the request
+	 * @param path - The path of the request
+	 * @param data - The data to be sent
+	 * @param headers - The headers to be sent
+	 * @param opts - The additional options to be sent to fetch
+	 *
+	 * @returns The response of the request
+	 *
+	 * @throws - If the request fails
 	 */
-	async request(method, path, data = null, headers = {}, opts = {}) {
+	async request(
+		method: string,
+		path: string,
+		data: object | null = null,
+		headers: object = {},
+		opts: any = {},
+	): Promise<any> {
 		let err;
 
 		if (!this.addr) throw ApiError.newOther('Server addr not defined');
@@ -50,7 +68,7 @@ export default class Api {
 				const errObj = await resp.json();
 				err = ApiError.fromJson(errObj);
 			}
-		} catch (e) {
+		} catch (e: any) {
 			console.error('request error raw', e);
 			err = ApiError.newOther(e.message);
 		}
@@ -62,14 +80,22 @@ export default class Api {
 	/**
 	 * Send a request to the server with a file
 	 *
-	 * @param {string} method - The method of the request
-	 * @param {string} path - The path of the request
-	 * @param {File} file - The file to be sent
-	 * @param {function|null} progress - The progress callback
-	 * @param {object} headers - The headers to be sent
+	 * @param method - The method of the request
+	 * @param path - The path of the request
+	 * @param file - The file to be sent
+	 * @param progress - The progress callback
+	 * @param headers - The headers to be sent
+	 *
+	 * @throws {ApiError} - If the request fails
 	 */
-	async requestWithFile(method, path, file, progress = null, headers = {}) {
-		if (!progress) progress = () => {};
+	async requestWithFile(
+		method: string,
+		path: string,
+		file: File,
+		progress: ((percent: number) => void) | null = null,
+		headers: Record<string, string> = {},
+	): Promise<any> {
+		const prog = progress ?? ((percent: number) => {});
 
 		if (!this.addr) throw ApiError.newOther('Server addr not defined');
 
@@ -80,7 +106,7 @@ export default class Api {
 			req.responseType = 'json';
 
 			req.addEventListener('load', () => {
-				progress(100);
+				prog(100);
 
 				// should probably be a json object now
 				if (req.status === 200) {
@@ -88,25 +114,25 @@ export default class Api {
 				} else {
 					try {
 						err(ApiError.fromJson(req.response));
-					} catch (e) {
+					} catch (e: any) {
 						err(ApiError.newOther(e.message));
 					}
 				}
 			});
 
 			req.addEventListener('error', () => {
-				console.error('file request error', req.error);
-				err(req.error);
+				console.error('requestWithFile network failure');
+				err(ApiError.newOther('reuestWithFile network failure'));
 			});
 
 			// to manually 'estimate the progress';
 			let prevProgress = 0;
 			req.addEventListener('progress', e => {
 				if (e.lengthComputable) {
-					progress(Math.min((e.loaded / e.total) * 100, 100));
+					prog(Math.min((e.loaded / e.total) * 100, 100));
 				} else {
 					prevProgress += prevProgress >= 75 ? 5 : 25;
-					progress(Math.min(prevProgress, 100));
+					prog(Math.min(prevProgress, 100));
 				}
 			});
 
@@ -126,13 +152,19 @@ export default class Api {
 	/**
 	 * Send a request to the server with a timeout
 	 *
-	 * @param {string} method - The method of the request
-	 * @param {string} path - The path of the request
-	 * @param {object|null} data - The data to be sent
-	 * @param {object} headers - The headers to be sent
-	 * @param {number} timeout - The timeout of the request if the value is 0 there is no timeout
+	 * @param method - The method of the request
+	 * @param path - The path of the request
+	 * @param data - The data to be sent
+	 * @param headers - The headers to be sent
+	 * @param timeout - The timeout of the request if the value is 0 there is no timeout
 	 */
-	async requestTimeout(method, path, data = null, headers = {}, timeout = 0) {
+	async requestTimeout(
+		method: string,
+		path: string,
+		data: object | null = null,
+		headers: object = {},
+		timeout: number = 0,
+	): Promise<any> {
 		if (!this.addr) throw ApiError.newOther('Server addr not defined');
 
 		return new Promise((res, err) => {
@@ -148,20 +180,20 @@ export default class Api {
 				} else {
 					try {
 						err(ApiError.fromJson(req.response));
-					} catch (e) {
+					} catch (e: any) {
 						err(ApiError.newOther(e.message));
 					}
 				}
 			});
 
 			req.addEventListener('timeout', () => {
-				console.error('requested TimedOut', req.error);
-				err(req.error);
+				console.error('requested TimedOut');
+				err(ApiError.newOther('requested TimedOut'));
 			});
 
 			req.addEventListener('error', () => {
-				console.error('requestTimeout error', req.error);
-				err(req.error);
+				console.error('requestTimeout network failure');
+				err(ApiError.newOther('requestTimeout network failure'));
 			});
 
 			// open request

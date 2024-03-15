@@ -1,12 +1,12 @@
 /**
  * Implements a slot array data structure.
- * @class
- * @exports collections/SlotArray/SlotArray
  */
-export default class SlotArray {
+export default class SlotArray<T> {
+	inner: (T | null)[];
+	free: number[];
+
 	/**
 	 * Creates a new instance of SlotArray.
-	 * @constructor
 	 */
 	constructor() {
 		this.inner = [];
@@ -18,10 +18,10 @@ export default class SlotArray {
 	 * inserted into one of them.
 	 * Otherwise, it's appended to the end of the array.
 	 *
-	 * @param {*} val - The value to be inserted.
-	 * @returns {number} The index at which the value was inserted.
+	 * @param val - The value to be inserted.
+	 * @returns The index at which the value was inserted.
 	 */
-	push(val) {
+	push(val: T): number {
 		let id = this.free.pop();
 		if (typeof id === 'number') {
 			this.inner[id] = val;
@@ -36,40 +36,43 @@ export default class SlotArray {
 	/**
 	 * Returns all non-null items in the array.
 	 *
-	 * @returns {*[]} An array of all non-null items in the array.
+	 * @returns An array of all non-null items in the array.
 	 */
-	all() {
-		return this.inner.filter(f => f !== null);
+	all(): T[] {
+		return this.inner.filter(f => f !== null) as T[];
 	}
 
 	/**
 	 * Returns all non-null items in the array, along with their indices.
 	 *
-	 * @returns {[number, *][]} An array of tuples, where each tuple consists
+	 * @returns An array of tuples, where each tuple consists
 	 * of an index and the corresponding non-null item.
 	 */
-	entries() {
-		// @ts-ignore
-		return this.inner.map((v, i) => [i, v]).filter(([_, v]) => v !== null);
+	entries(): [number, T][] {
+		return this.inner
+			.map((v, i) => [i, v])
+			.filter(([_, v]) => v !== null) as [number, T][];
 	}
 
 	/**
 	 * Retrieves the item at the given index.
 	 *
-	 * @param {number} id - The index to retrieve the item from.
-	 * @returns {*} The item at the given index, or null if no item is present.
+	 * @param id - The index to retrieve the item from.
+	 * @returns The item at the given index, or null if no item is present.
 	 */
-	get(id) {
-		return this.inner[id];
+	get(id: number): T | null {
+		return this.inner[id] ?? null;
 	}
 
 	/**
 	 * Removes the item at the given index, making its slot available for future
 	 * insertions.
 	 *
-	 * @param {number} id - The index to remove the item from.
+	 * @param id - The index to remove the item from.
 	 */
-	remove(id) {
+	remove(id: number) {
+		if (this.inner.length <= id) return;
+
 		this.inner[id] = null;
 		this.free.push(id);
 	}

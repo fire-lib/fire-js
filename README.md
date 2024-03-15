@@ -2,10 +2,7 @@
 ## Fire Js
 This contains various helpers and types.
 
-## Unstable
-the graphql module is unstable.
-
-## Usage
+### Usage
 ```json
 {
 	"dependencies": {
@@ -13,3 +10,12 @@ the graphql module is unstable.
 	}
 }
 ```
+
+### Unstable
+the graphql module is unstable.
+
+### Time
+consider using luxon instead of this time implementation.
+
+### Deprecated
+the entire **data** folder is deprecated either use zod or something like that or just use `Object.assign` and typescript.

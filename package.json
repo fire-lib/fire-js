@@ -6,7 +6,9 @@
 	"scripts": {
 		"test": "vitest",
 		"check": "prettier -c .",
-		"lint": "eslint ./src"
+		"lint": "eslint ./src",
+		"build": "tsc",
+		"watch": "tsc -w"
 	},
 	"repository": {
 		"type": "git",
@@ -14,10 +16,10 @@
 	},
 	"license": "MIT or Apache-2.0",
 	"exports": {
-		"./api/Api": "./src/api/Api.js",
-		"./api/ApiError": "./src/api/ApiError.js",
-		"./api/Stream": "./src/api/Stream.js",
-		"./collections/SlotArray": "./src/collections/SlotArray.js",
+		"./api/Api": "./dist/api/Api.js",
+		"./api/ApiError": "./dist/api/ApiError.js",
+		"./api/Stream": "./dist/api/Stream.js",
+		"./collections/SlotArray": "./dist/collections/SlotArray.js",
 		"./data/Data": "./src/data/Data.js",
 		"./data/MapType": "./src/data/MapType.js",
 		"./data/ParseType": "./src/data/ParseType.js",
@@ -26,20 +28,22 @@
 		"./dom/utils": "./src/dom/utils.js",
 		"./graphQl/GraphQl": "./src/graphQl/GraphQl.js",
 		"./graphQl/GraphQlError": "./src/graphQl/GraphQlError.js",
-		"./sync/Barrier": "./src/sync/Barrier.js",
-		"./sync/Listeners": "./src/sync/Listeners.js",
-		"./sync/NonConcurrent": "./src/sync/NonConcurrent.js",
+		"./sync/Barrier": "./dist/sync/Barrier.js",
+		"./sync/Listeners": "./dist/sync/Listeners.js",
+		"./sync/NonConcurrent": "./dist/sync/NonConcurrent.js",
 		"./time/Date": "./src/time/Date.js",
 		"./time/DateTime": "./src/time/DateTime.js",
 		"./time/DateTimeRange": "./src/time/DateTimeRange.js",
 		"./time/Duration": "./src/time/Duration.js",
 		"./time/localization": "./src/time/localization.js",
-		"./utils": "./src/utils/utils.js",
-		"./utils/colors": "./src/utils/colors.js"
+		"./utils": "./dist/utils/utils.js",
+		"./utils/colors": "./dist/utils/colors.js"
 	},
 	"devDependencies": {
 		"eslint": "^8.45.0",
 		"vitest": "^1.1.3",
-		"prettier": "^3.2.4"
+		"prettier": "^3.2.4",
+		"tslib": "^2.6.2",
+		"typescript": "^5.2.2"
 	}
 }

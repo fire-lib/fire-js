@@ -2,6 +2,18 @@
  * An error returned from the API
  */
 export default class ApiError {
+	/**
+	 * The kind of error
+	 */
+	kind: string;
+
+	/**
+	 * The data associated with this error
+	 *
+	 * should provide a toString method
+	 */
+	data: any;
+
 	/*
 	fields:
 		- kind: str,
@@ -9,11 +21,8 @@ export default class ApiError {
 	*/
 	/**
 	 * Creates a new ApiError
-	 *
-	 * @param {string} kind - The kind of the error should be in SCREAMING-KEBAB-CASE
-	 * @param {any} data - The data of the error if it provides a toString method it will be stored in the msg
 	 */
-	constructor(kind, data) {
+	constructor(kind: string, data: any) {
 		this.kind = kind;
 		this.data = data;
 	}
@@ -21,9 +30,9 @@ export default class ApiError {
 	/**
 	 * The message of the error
 	 *
-	 * @returns {string}
+	 * @returns
 	 */
-	get msg() {
+	get msg(): string {
 		if (this.data && typeof this.data.toString === 'function')
 			return this.data.toString();
 		return '';
@@ -35,7 +44,7 @@ export default class ApiError {
 	/// str
 	/// { 'kind': data }
 	/// { kind, data }
-	static fromJson(obj) {
+	static fromJson(obj: any) {
 		if (typeof obj === 'string') return new ApiError(obj, null);
 
 		// {kind, data}
@@ -49,8 +58,8 @@ export default class ApiError {
 	/**
 	 * Creates a new ApiError with the kind 'OTHER'
 	 */
-	static newOther(msg) {
-		return new ApiError('OTHER', msg);
+	static newOther(data: any): ApiError {
+		return new ApiError('OTHER', data);
 	}
 
 	/**
@@ -70,9 +79,7 @@ export default class ApiError {
 
 /**
  * Returns whether the value is an ApiError object
- *
- * @returns {boolean}
  */
-export function isApiErrorObject(val) {
+export function isApiErrorObject(val: any): boolean {
 	return typeof (val ? val.__isApiErrorObject__ : null) === 'function';
 }
