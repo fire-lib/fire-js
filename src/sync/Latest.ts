@@ -34,6 +34,10 @@ export default class Latest {
 				if (canceled)
 					throw new Error('calling done on a cancelled function');
 
+				// since all promises are delayed to the next microtask we can set
+				// running before
+				this.running = false;
+
 				// notify the latest
 				const latest = this.listeners.pop();
 				if (!latest) return;
@@ -41,10 +45,7 @@ export default class Latest {
 				this.listeners.forEach(resolve => resolve(true));
 				this.listeners = [];
 
-				// queued as a microtask
 				latest(false);
-
-				this.running = false;
 			},
 		};
 	}
