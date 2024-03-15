@@ -6,7 +6,7 @@ This contains various helpers and types.
 ```json
 {
 	"dependencies": {
-		"fire": "npm:fire-lib-js@^0.2"
+		"fire": "npm:fire-lib-js@^0.3.0-alpha.7"
 	}
 }
 ```
