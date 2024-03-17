@@ -63,7 +63,8 @@ export default class Api {
 				const searchParams = url.searchParams;
 
 				for (const [key, value] of Object.entries(data ?? {})) {
-					searchParams.set(key, value);
+					if (value !== undefined && value !== null)
+						searchParams.set(key, value);
 				}
 			} else {
 				fetchParams.body = JSON.stringify(data);
