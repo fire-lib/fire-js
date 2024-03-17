@@ -28,7 +28,8 @@ export default class Api {
 	 *
 	 * @param method - The method of the request
 	 * @param path - The path of the request
-	 * @param data - The data to be sent
+	 * @param data - The data to be sent if the method is get the data will
+	 * be sent as query params
 	 * @param headers - The headers to be sent
 	 * @param opts - The additional options to be sent to fetch
 	 *
@@ -47,6 +48,8 @@ export default class Api {
 
 		if (!this.addr) throw ApiError.newOther('Server addr not defined');
 
+		const url = new URL(this.addr + path);
+
 		try {
 			let fetchParams = {
 				headers,
@@ -56,12 +59,22 @@ export default class Api {
 			fetchParams.headers['content-type'] = 'application/json';
 
 			// don't send a body if the method is get
-			if (method.toLowerCase() !== 'get')
+			if (method.toLowerCase() === 'get') {
+				const searchParams = url.searchParams;
+
+				for (const [key, value] of Object.entries(data ?? {})) {
+					searchParams.set(key, value);
+				}
+			} else {
 				fetchParams.body = JSON.stringify(data);
+			}
 
-			const resp = await fetch(this.addr + path, fetchParams);
+			const resp = await fetch(url, fetchParams);
 
-			if (resp.status === 200) {
+			opts.responseStatus = resp.status;
+			opts.responseHeaders = resp.headers;
+
+			if (resp.ok) {
 				return await resp.json();
 			} else {
 				// we've got and error
