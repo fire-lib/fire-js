@@ -1,11 +1,30 @@
 export let DEFAULT_LANG = 'german';
 
-export function setDefault(lang) {
+export function setDefault(lang: string) {
 	DEFAULT_LANG = lang;
 }
 
+export type gramFn = (num: number | string, unit: string) => string;
+
+export type Localization = {
+	months: string[];
+	days: string[];
+	daysLetter: string[];
+	intWords: {
+		beforeGram: gramFn;
+		afterGram: gramFn;
+		second: [string, string, string];
+		minute: [string, string, string];
+		hour: [string, string, string];
+		day: [string, string, string];
+		week: [string, string, string];
+		month: [string, string, string];
+		year: [string, string, string];
+	};
+};
+
 // s cannot be null
-export function fromString(s) {
+export function fromString(s: string): Localization | null {
 	switch (s.toLowerCase()) {
 		case 'german':
 		case 'de':
@@ -21,14 +40,14 @@ export function fromString(s) {
 	}
 }
 
-export function fromAny(a) {
+export function fromAny(a: any): Localization | null {
 	if (typeof a === 'string') return fromString(a);
 	if (a === null) return fromString(DEFAULT_LANG);
 	// we expect it to already be a lang item (for example german)
 	return a;
 }
 
-export const german = {
+export const german: Localization = {
 	months: [
 		'Januar',
 		'Februar',
@@ -67,7 +86,7 @@ export const german = {
 	},
 };
 
-export const english = {
+export const english: Localization = {
 	months: [
 		'January',
 		'February',
@@ -106,7 +125,7 @@ export const english = {
 	},
 };
 
-export const french = {
+export const french: Localization = {
 	months: [
 		'Janvier',
 		'Février',

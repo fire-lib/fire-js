@@ -1,80 +1,84 @@
-/**
- * @module time/datetime
- */
-
-import { padZero } from '../utils/utils.js';
-import { fromAny } from './localization.js';
+import { padZero } from '../utils/utils';
+import { fromAny } from './localization';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
-function isDateTimeObject(val) {
-	return typeof (val ? val.__isDateTimeObject__ : null) === 'function';
+function isDateObject(val: any): val is Date {
+	return typeof (val ? val.__isDateObject__ : null) === 'function';
 }
 
 /**
- * Class representing a DateTime object
+ * Class representing a Date object
  * @class
- * @exports time/datetime/DateTime
+ * @exports time/date/Date
  * */
-export default class DateTime {
+export default class Date {
+	raw: globalThis.Date;
+
 	static __parsetype__() {}
-	__isDateTimeObject__() {}
-	static parse(val) {
+	__isDateObject__() {}
+
+	/**
+	 * Tries to creates a new Date instance
+	 */
+	static parse(val: any) {
 		if (
 			typeof val !== 'string' &&
 			typeof val !== 'number' &&
-			!isDateTimeObject(val)
+			!isDateObject(val)
 		)
 			throw new Error('expected a string or a number');
 
-		return new DateTime(val);
+		return new Date(val);
 	}
 
 	/**
-	 * Create a new DateTime instance
+	 * Create a new Date instance
 	 * @constructor
-	 * @param {Date|DateTime|string|number} date - The date value. Default is
-	 * current date/time.
+	 * @param date - The date value. Default is
+	 * current date.
 	 * If it's a string or number, convert it to a date.
-	 * @throws {Error} Will throw an error if date is an invalid Date.
+	 * @throws Will throw an error if date is an invalid Date.
 	 */
-	constructor(date = null) {
+	constructor(
+		date:
+			| Date
+			| globalThis.Date
+			| string
+			| number
+			| null
+			| undefined = null,
+	) {
 		if (typeof date === 'undefined' || date === null) {
-			this.raw = new Date();
+			this.raw = new globalThis.Date();
+			this.raw.setHours(0, 0, 0, 0);
 			return;
 		}
 
-		if (isDateTimeObject(date)) date = date.raw;
+		if (isDateObject(date)) {
+			date = date.raw;
+		}
 
-		if (date instanceof Date) {
+		if (date instanceof globalThis.Date) {
 			this.raw = date;
 			return;
 		}
 
-		this.raw = new Date(date);
+		this.raw = new globalThis.Date(date);
 
-		if (isNaN(this.raw)) throw new Error('invalid Date');
-	}
-
-	/**
-	 * Create a new DateTime instance representing today's date
-	 * @static
-	 * @returns {DateTime} A DateTime object representing today's date with the
-	 * time set to 0
-	 */
-	static today() {
-		const date = new DateTime();
-		date.raw.setHours(0, 0, 0, 0);
-		return date;
+		// @ts-ignore
+		if (isNaN(this.raw)) {
+			throw new Error('invalid Date');
+		}
 	}
 
 	/**
 	 * Check if the date represented by this instance is today
-	 * @returns {boolean} True if the date represented by this instance is
+	 * @returns True if the date represented by this instance is
 	 * today, otherwise false
 	 */
-	isToday() {
-		const today = new DateTime();
+	isToday(): boolean {
+		const today = new Date();
 		return (
 			this.year == today.year &&
 			this.month == today.month &&
@@ -86,7 +90,7 @@ export default class DateTime {
 	 * Get the year from the date ex: 2023
 	 * @returns {number} The year in which the date occurs
 	 */
-	get year() {
+	get year(): number {
 		return this.raw.getFullYear();
 	}
 
@@ -94,7 +98,7 @@ export default class DateTime {
 	 * Get the month from the date (0 indexed)
 	 * @returns {number} The month in which the date occurs, zero-indexed
 	 */
-	get month() {
+	get month(): number {
 		return this.raw.getMonth();
 	}
 
@@ -102,7 +106,7 @@ export default class DateTime {
 	 * Get the date (day of the month 1-31)
 	 * @returns {number} The day of the month on which the date occurs
 	 */
-	get date() {
+	get date(): number {
 		return this.raw.getDate();
 	}
 
@@ -110,10 +114,10 @@ export default class DateTime {
 	 * Get the week of the year
 	 * @returns {number} The week of the year in which the date occurs
 	 */
-	get week() {
-		const nearestThursday = this.cloneDay();
+	get week(): number {
+		const nearestThursday = this.clone();
 		nearestThursday.raw.setDate(this.date + 4 - this.dayMoToSu);
-		const firstDay = new DateTime(new Date(this.year, 0, 1));
+		const firstDay = new Date(new globalThis.Date(this.year, 0, 1));
 		const days = (nearestThursday.time - firstDay.time) / DAY_IN_MS;
 		return Math.ceil((days + 1) / 7);
 	}
@@ -123,7 +127,7 @@ export default class DateTime {
 	 * @returns {number} The day of the week on which the date occurs,
 	 * zero-indexed with 0 for Sunday
 	 */
-	get day() {
+	get day(): number {
 		return this.raw.getDay();
 	}
 
@@ -132,61 +136,25 @@ export default class DateTime {
 	 * @returns {number} The day of the week on which the date occurs, with 1
 	 * for Monday and 7 for Sunday
 	 */
-	get dayMoToSu() {
+	get dayMoToSu(): number {
 		return this.day || 7;
-	}
-
-	/**
-	 * Get the hours part of the date
-	 * @returns {number} The hour of the day on which the date occurs, from 0
-	 * to 23
-	 */
-	get hours() {
-		return this.raw.getHours();
-	}
-
-	/**
-	 * Get the minutes part of the date
-	 * @returns {number} The minute of the hour on which the date occurs, from
-	 * 0 to 59
-	 */
-	get minutes() {
-		return this.raw.getMinutes();
-	}
-
-	/**
-	 * Get the seconds part of the date
-	 * @returns {number} The second of the minute on which the date occurs,
-	 * from 0 to 59
-	 */
-	get seconds() {
-		return this.raw.getSeconds();
-	}
-
-	/**
-	 * Get the milliseconds part of the date
-	 * @returns {number} The milliseconds of the second on which the date
-	 * occurs, from 0 to 999
-	 */
-	get millis() {
-		return this.raw.getMilliseconds();
 	}
 
 	/**
 	 * Get the number of milliseconds since 1 January 1970 00:00:00 UTC
 	 * @returns {number} The number of milliseconds since the Unix Epoch
 	 */
-	get time() {
+	get time(): number {
 		return this.raw.getTime();
 	}
 
 	/**
-	 * Create a new DateTime object representing the same day
-	 * @returns {DateTime} A new DateTime object with the same year, month, and
+	 * Create a new Date object representing the same day
+	 * @returns {Date} A new Date object with the same year, month, and
 	 * date
 	 */
-	cloneDay() {
-		return new DateTime(new Date(this.year, this.month, this.date));
+	clone(): Date {
+		return new Date(new globalThis.Date(this.year, this.month, this.date));
 	}
 
 	/**
@@ -195,7 +163,7 @@ export default class DateTime {
 	 * @returns {string|null} The name of the month in the given language,
 	 * or null if the language is not provided
 	 */
-	toStrMonth(lang = null) {
+	toStrMonth(lang: string | null = null): string | null {
 		const l = fromAny(lang);
 		return (l && l.months[this.month]) ?? null;
 	}
@@ -206,7 +174,7 @@ export default class DateTime {
 	 * @returns {string|null} The name of the day in the given language,
 	 * or null if the language is not provided
 	 */
-	toStrDay(lang = null) {
+	toStrDay(lang: string | null = null): string | null {
 		const l = fromAny(lang);
 		return (l && l.days[this.day]) ?? null;
 	}
@@ -217,7 +185,7 @@ export default class DateTime {
 	 * @returns {string|null} The first letter of the day in the given
 	 * language, or null if the language is not provided
 	 */
-	toStrDayLetter(lang = null) {
+	toStrDayLetter(lang: string | null = null): string | null {
 		const l = fromAny(lang);
 		return (l && l.daysLetter[this.day]) ?? null;
 	}
@@ -226,7 +194,7 @@ export default class DateTime {
 	 * Get a short representation of the date (dd.mm)
 	 * @returns {string} A string representing the date in the form dd.mm
 	 */
-	toStrShortDate() {
+	toStrShort(): string {
 		return `${padZero(this.date)}.${padZero(this.month + 1)}`;
 	}
 
@@ -234,7 +202,7 @@ export default class DateTime {
 	 * Get a representation of the date (dd.mm.yyyy)
 	 * @returns {string} A string representing the date in the form dd.mm.yyyy
 	 */
-	toStrDate() {
+	toStr(): string {
 		const month = padZero(this.month + 1);
 		return `${padZero(this.date)}.${month}.${this.year}`;
 	}
@@ -243,31 +211,12 @@ export default class DateTime {
 	 * Get a representation of the date suitable for a browser (yyyy-mm-dd)
 	 * @returns {string} A string representing the date in the form yyyy-mm-dd
 	 */
-	toBrowserDate() {
+	toBrowserDate(): string {
 		const month = padZero(this.month + 1);
 		return `${this.year}-${month}-${padZero(this.date)}`;
 	}
 
-	/**
-	 * Get a representation of the time with seconds (hh:mm:ss)
-	 * @returns {string} A string representing the time in the form hh:mm:ss
-	 */
-	toStrFullTime() {
-		const minutes = padZero(this.minutes);
-		const seconds = padZero(this.seconds);
-		return `${padZero(this.hours)}:${minutes}:${seconds}`;
-	}
-
-	/**
-	 * Get a representation of the time without seconds (hh:mm)
-	 * @returns {string} A string representing the time in the form hh:mm
-	 */
-	toStrShortTime() {
-		return `${padZero(this.hours)}:${padZero(this.minutes)}`;
-	}
-
 	toJSON() {
-		const str = this.raw.toISOString();
-		return str.substr(0, 19) + '+00:00';
+		return this.toBrowserDate();
 	}
 }
