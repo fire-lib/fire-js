@@ -44,7 +44,7 @@ export default class ApiError {
 	/// str
 	/// { 'kind': data }
 	/// { kind, data }
-	static fromJson(obj: any) {
+	static fromJson(obj: any): ApiError {
 		if (typeof obj === 'string') return new ApiError(obj, null);
 
 		// {kind, data}
@@ -65,14 +65,14 @@ export default class ApiError {
 	/**
 	 * Creates a new ApiError with the kind 'SESSION_NOT_FOUND'
 	 */
-	static newSessionError() {
+	static newSessionError(): ApiError {
 		return new ApiError('SESSION_NOT_FOUND', 'no session');
 	}
 
 	/**
 	 * Returns a string representation of the error
 	 */
-	toString() {
+	toString(): string {
 		return `${this.kind}: ${this.msg}`;
 	}
 }

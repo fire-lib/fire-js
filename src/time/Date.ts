@@ -21,7 +21,7 @@ export default class Date {
 	/**
 	 * Tries to creates a new Date instance
 	 */
-	static parse(val: any) {
+	static parse(val: any): Date {
 		if (
 			typeof val !== 'string' &&
 			typeof val !== 'number' &&
@@ -216,7 +216,7 @@ export default class Date {
 		return `${this.year}-${month}-${padZero(this.date)}`;
 	}
 
-	toJSON() {
+	toJSON(): string {
 		return this.toBrowserDate();
 	}
 }

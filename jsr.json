@@ -1,0 +1,21 @@
+{
+  "name": "@fire-lib/fire",
+  "version": "0.3.0-alpha.12",
+  "exports": {
+		"./api/Api": "./src/api/Api.ts",
+		"./api/ApiError": "./src/api/ApiError.ts",
+		"./api/Stream": "./src/api/Stream.ts",
+		"./collections/SlotArray": "./src/collections/SlotArray.ts",
+		"./sync/Barrier": "./src/sync/Barrier.ts",
+		"./sync/Listeners": "./src/sync/Listeners.ts",
+		"./sync/NonConcurrent": "./src/sync/NonConcurrent.ts",
+		"./sync/Latest": "./src/sync/Latest.ts",
+		"./time/Date": "./src/time/Date.ts",
+		"./time/DateTime": "./src/time/DateTime.ts",
+		"./time/DateTimeRange": "./src/time/DateTimeRange.ts",
+		"./time/Duration": "./src/time/Duration.ts",
+		"./time/localization": "./src/time/localization.ts",
+		"./utils": "./src/utils/utils.ts",
+		"./utils/colors": "./src/utils/colors.ts"
+	}
+}

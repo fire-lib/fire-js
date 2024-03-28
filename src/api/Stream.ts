@@ -159,11 +159,11 @@ export default class Stream {
 		this.ws.addEventListener('close', onClose);
 	}
 
-	onError(fn: (e: Event) => void) {
+	onError(fn: (e: Event) => void): () => void {
 		return this.errorListeners.add(fn);
 	}
 
-	onClose(fn: () => void) {
+	onClose(fn: () => void): () => void {
 		return this.closeListeners.add(fn);
 	}
 
@@ -178,8 +178,8 @@ export default class Stream {
 	/// so there might be close events in between
 	///
 	/// Does not throw an exception
-	async _waitReady() {
-		return await new Promise((resolve: (v?: null) => void) => {
+	async _waitReady(): Promise<void> {
+		return (await new Promise((resolve: (v?: null) => void) => {
 			if (this.connected) return resolve();
 
 			let rmFn = () => {};
@@ -187,7 +187,7 @@ export default class Stream {
 				rmFn();
 				resolve();
 			});
-		});
+		})) as void;
 	}
 
 	/// Creates a new Sender

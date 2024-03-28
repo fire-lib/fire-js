@@ -266,7 +266,7 @@ export default class DateTime {
 		return `${padZero(this.hours)}:${padZero(this.minutes)}`;
 	}
 
-	toJSON() {
+	toJSON(): string {
 		const str = this.raw.toISOString();
 		return str.substr(0, 19) + '+00:00';
 	}
