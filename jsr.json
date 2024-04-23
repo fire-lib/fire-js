@@ -1,6 +1,6 @@
 {
   "name": "@fire-lib/fire",
-  "version": "0.3.0-alpha.12",
+  "version": "0.3.0",
   "exports": {
 		"./api/Api": "./src/api/Api.ts",
 		"./api/ApiError": "./src/api/ApiError.ts",
