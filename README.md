@@ -6,7 +6,7 @@ This contains various helpers and types.
 ```json
 {
 	"dependencies": {
-		"fire": "npm:fire-lib-js@^0.3.0-alpha.7"
+		"fire": "npm:fire-lib-js@^0.3.0"
 	}
 }
 ```
@@ -14,8 +14,10 @@ This contains various helpers and types.
 ### Unstable
 the graphql module is unstable.
 
+The dom module is unstable and might changed in a minor release.
+
 ### Time
 consider using luxon instead of this time implementation.
 
 ### Deprecated
-the entire **data** folder is deprecated either use zod or something like that or just use `Object.assign` and typescript.
+The data module is deprecated either use zod or something like that or just use `Object.assign` and typescript.

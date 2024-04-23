@@ -1,6 +1,6 @@
 {
 	"name": "fire-lib-js",
-	"version": "0.3.0-alpha.12",
+	"version": "0.3.0",
 	"author": "Sören Meier <info@soerenmeier.ch>",
 	"type": "module",
 	"scripts": {
@@ -20,14 +20,6 @@
 		"./api/ApiError": "./dist/api/ApiError.js",
 		"./api/Stream": "./dist/api/Stream.js",
 		"./collections/SlotArray": "./dist/collections/SlotArray.js",
-		"./data/Data": "./src/data/Data.js",
-		"./data/MapType": "./src/data/MapType.js",
-		"./data/ParseType": "./src/data/ParseType.js",
-		"./data/parseTypes": "./src/data/parseTypes.js",
-		"./dom/Context2d": "./src/dom/Context2d.js",
-		"./dom/utils": "./src/dom/utils.js",
-		"./graphQl/GraphQl": "./src/graphQl/GraphQl.js",
-		"./graphQl/GraphQlError": "./src/graphQl/GraphQlError.js",
 		"./sync/Barrier": "./dist/sync/Barrier.js",
 		"./sync/Listeners": "./dist/sync/Listeners.js",
 		"./sync/NonConcurrent": "./dist/sync/NonConcurrent.js",
@@ -38,7 +30,17 @@
 		"./time/Duration": "./src/time/Duration.js",
 		"./time/localization": "./src/time/localization.js",
 		"./utils": "./dist/utils/utils.js",
-		"./utils/colors": "./dist/utils/colors.js"
+		"./utils/colors": "./dist/utils/colors.js",
+
+		"./dom/Context2d": "./src/dom/Context2d.js",
+		"./dom/utils": "./src/dom/utils.js",
+		"./graphQl/GraphQl": "./src/graphQl/GraphQl.js",
+		"./graphQl/GraphQlError": "./src/graphQl/GraphQlError.js",
+
+		"./data/Data": "./src/data/Data.js",
+		"./data/MapType": "./src/data/MapType.js",
+		"./data/ParseType": "./src/data/ParseType.js",
+		"./data/parseTypes": "./src/data/parseTypes.js"
 	},
 	"devDependencies": {
 		"eslint": "^8.45.0",
