@@ -1,6 +1,6 @@
 {
 	"name": "fire-lib-js",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"author": "Sören Meier <info@soerenmeier.ch>",
 	"type": "module",
 	"scripts": {
@@ -24,11 +24,11 @@
 		"./sync/Listeners": "./dist/sync/Listeners.js",
 		"./sync/NonConcurrent": "./dist/sync/NonConcurrent.js",
 		"./sync/Latest": "./dist/sync/Latest.js",
-		"./time/Date": "./src/time/Date.js",
-		"./time/DateTime": "./src/time/DateTime.js",
-		"./time/DateTimeRange": "./src/time/DateTimeRange.js",
-		"./time/Duration": "./src/time/Duration.js",
-		"./time/localization": "./src/time/localization.js",
+		"./time/Date": "./dist/time/Date.js",
+		"./time/DateTime": "./dist/time/DateTime.js",
+		"./time/DateTimeRange": "./dist/time/DateTimeRange.js",
+		"./time/Duration": "./dist/time/Duration.js",
+		"./time/localization": "./dist/time/localization.js",
 		"./utils": "./dist/utils/utils.js",
 		"./utils/colors": "./dist/utils/colors.js",
 
