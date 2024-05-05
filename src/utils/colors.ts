@@ -1,4 +1,4 @@
-import { range } from './utils';
+import { range } from './utils.js';
 
 /**
  * returns expects a hex value with 6 values `rgba(0,0,0,a)`

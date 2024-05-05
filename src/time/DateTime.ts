@@ -1,5 +1,5 @@
-import { padZero } from '../utils/utils';
-import { fromAny } from './localization';
+import { padZero } from '../utils/utils.js';
+import { fromAny } from './localization.js';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 

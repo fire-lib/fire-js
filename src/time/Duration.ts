@@ -1,5 +1,5 @@
-import type DateTime from './DateTime';
-import { type Localization, fromAny } from './localization';
+import type DateTime from './DateTime.js';
+import { type Localization, fromAny } from './localization.js';
 
 export default class Duration {
 	millis: number;

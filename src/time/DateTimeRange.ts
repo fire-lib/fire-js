@@ -1,5 +1,5 @@
-import { padZero } from '../utils/utils';
-import type DateTime from './DateTime';
+import { padZero } from '../utils/utils.js';
+import type DateTime from './DateTime.js';
 
 export default class DateTimeRange {
 	from: DateTime;

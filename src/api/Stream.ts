@@ -1,6 +1,6 @@
-import ApiError from './ApiError';
-import Listeners from '../sync/Listeners';
-import Api from './Api';
+import ApiError from './ApiError.js';
+import Listeners from '../sync/Listeners.js';
+import Api from './Api.js';
 
 /**
  * The Stream is responsible for managing your connection with a server
