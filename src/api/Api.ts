@@ -48,7 +48,7 @@ export default class Api {
 
 		if (!this.addr) throw ApiError.newOther('Server addr not defined');
 
-		const url = new URL(this.addr + path);
+		const url = this.addr + path;
 
 		try {
 			let fetchParams = {
@@ -60,7 +60,8 @@ export default class Api {
 
 			// don't send a body if the method is get
 			if (method.toLowerCase() === 'get') {
-				const searchParams = url.searchParams;
+				const parseUrl = new URL(url, 'http://placeholder');
+				const searchParams = parseUrl.searchParams;
 
 				for (const [key, value] of Object.entries(data ?? {})) {
 					if (value !== undefined && value !== null)
