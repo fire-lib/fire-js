@@ -17,6 +17,6 @@
 		"strict": true,
 		"outDir": "./dist"
 	},
-	"include": ["src/**/*.ts"],
+	"include": ["src/**/*.ts", "src/**/*.js"],
 	"exclude": ["src/**/*.test.js", "src/**/*.test.ts"]
 }

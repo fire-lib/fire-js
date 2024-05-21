@@ -1,6 +1,6 @@
 {
 	"name": "fire-lib-js",
-	"version": "0.3.3",
+	"version": "0.3.4",
 	"author": "Sören Meier <info@soerenmeier.ch>",
 	"type": "module",
 	"scripts": {
@@ -32,15 +32,15 @@
 		"./utils": "./dist/utils/utils.js",
 		"./utils/colors": "./dist/utils/colors.js",
 
-		"./dom/Context2d": "./src/dom/Context2d.js",
-		"./dom/utils": "./src/dom/utils.js",
-		"./graphQl/GraphQl": "./src/graphQl/GraphQl.js",
-		"./graphQl/GraphQlError": "./src/graphQl/GraphQlError.js",
+		"./dom/Context2d": "./dist/dom/Context2d.js",
+		"./dom/utils": "./dist/dom/utils.js",
+		"./graphQl/GraphQl": "./dist/graphQl/GraphQl.js",
+		"./graphQl/GraphQlError": "./dist/graphQl/GraphQlError.js",
 
-		"./data/Data": "./src/data/Data.js",
-		"./data/MapType": "./src/data/MapType.js",
-		"./data/ParseType": "./src/data/ParseType.js",
-		"./data/parseTypes": "./src/data/parseTypes.js"
+		"./data/Data": "./dist/data/Data.js",
+		"./data/MapType": "./dist/data/MapType.js",
+		"./data/ParseType": "./dist/data/ParseType.js",
+		"./data/parseTypes": "./dist/data/parseTypes.js"
 	},
 	"devDependencies": {
 		"eslint": "^8.45.0",
