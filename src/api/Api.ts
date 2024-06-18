@@ -1,5 +1,7 @@
 import ApiError from './ApiError.js';
 
+const DEF_ORIGIN = 'http://fir_def';
+
 /**
  * Api class to handle requests to a server
  */
@@ -48,7 +50,13 @@ export default class Api {
 
 		if (!this.addr) throw ApiError.newOther('Server addr not defined');
 
-		const url = this.addr + path;
+		// since URL does not accept an url with out a host we need to add
+		// a default host, which we will remove later
+		// the URL is used in the first place to allow to modify the
+		// search params
+		// todo: there might still be an issue with relative and absolute
+		// paths, but i'm not sure fetch supports relative paths?
+		const url = new URL(this.addr + path, DEF_ORIGIN);
 
 		try {
 			let fetchParams = {
@@ -60,8 +68,7 @@ export default class Api {
 
 			// don't send a body if the method is get
 			if (method.toLowerCase() === 'get') {
-				const parseUrl = new URL(url, 'http://placeholder');
-				const searchParams = parseUrl.searchParams;
+				const searchParams = url.searchParams;
 
 				for (const [key, value] of Object.entries(data ?? {})) {
 					if (value !== undefined && value !== null)
@@ -70,6 +77,10 @@ export default class Api {
 			} else {
 				fetchParams.body = JSON.stringify(data);
 			}
+
+			let urlStr = url.toString();
+			if (urlStr.startsWith(DEF_ORIGIN))
+				urlStr = urlStr.substring(DEF_ORIGIN.length);
 
 			const resp = await fetch(url, fetchParams);
 
